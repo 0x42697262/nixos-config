@@ -98,9 +98,6 @@
     pkgs.linuxKernel.packages.linux_latest_libre.cpupower
     #cpupower
     acpilight
-    nmap
-    openvpn
-    wl-clipboard-rs
     btop
     cargo
     firefox
@@ -111,12 +108,15 @@
     kitty
     ncdu
     neovim
+    nmap
+    openvpn
     pciutils
     rustc
     usbutils
     w3m
     wget
     wireplumber
+    wl-clipboard-rs
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
