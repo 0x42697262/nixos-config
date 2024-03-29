@@ -75,22 +75,67 @@
     isNormalUser = true;
     extraGroups = [ "wheel" "video" "networkmanager" ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
-      geekbench_6
+      # appimage-run
+      dunst
+      thunderbird
+      # geekbench_6
+      grimblast
+      lazygit
       lynx
-      metasploit
+      # metasploit
       neofetch
-      rofi
       pavucontrol
+      rofi
+      slurp
       tree
       waybar
     ];
   };
 
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;
+  programs = {
+    hyprland = {
+      enable = true;
+      xwayland.enable = true;
+    };
+    firejail = {
+      enable = true;
+      wrappedBinaries = {
 
+        chromium = {
+          executable = "${pkgs.chromium}/bin/chromium";
+          extraArgs = [
+            "--private=~/firejail"
+            "--noprofile"
+          ];
+        };
+
+        appimage-run = {
+          executable = "${pkgs.appimage-run}/bin/appimage-run";
+          extraArgs = [
+            "--private=~/firejail"
+            "--noprofile"
+          ];
+        };
+
+        geekbench = {
+          executable = "${pkgs.geekbench}/bin/geekbench6";
+          extraArgs = [
+            "--private=~/firejail"
+            "--noprofile"
+          ];
+        };
+
+        metasploit = {
+          executable = "${pkgs.metasploit}/bin/metasploit";
+          extraArgs = [
+            "--private=~/firejail"
+            "--noprofile"
+          ];
+        };
+      };
+    };
   };
+
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -99,19 +144,17 @@
     #cpupower
     acpilight
     btop
-    cargo
     firefox
-    firejail
     git
     gparted
     htop
     kitty
+    unzip
     ncdu
     neovim
     nmap
     openvpn
     pciutils
-    rustc
     usbutils
     w3m
     wget
@@ -126,6 +169,11 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
+
+  hardware.opentabletdriver = {
+    enable = true;
+    daemon.enable = true;
+  };
 
   # List services that you want to enable:
   services.automatic-timezoned.enable = true;
