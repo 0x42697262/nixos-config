@@ -29,6 +29,40 @@
   boot.supportedFilesystems = [ "btrfs" ];
 
 
+
+
+  fileSystems."/" =
+    {
+      options = [ "subvol=root" "compress=zstd:3" "discard=async" "noatime" "ssd" "space_cache=v2" ];
+    };
+
+
+  fileSystems."/home" =
+    {
+      options = [ "compress=zstd:3" "relatime" "discard=async" "ssd" "space_cache=v2" ];
+    };
+
+  fileSystems."/nix" =
+    {
+      options = [ "subvol=nix" "compress=zstd:3" "discard=async" "noatime" "ssd" "space_cache=v2" ];
+    };
+
+  fileSystems."/persist" =
+    {
+      options = [ "subvol=persist" "compress=zstd:3" "discard=async" "noatime" "ssd" "space_cache=v2" ];
+    };
+
+  fileSystems."/var/log" =
+    {
+      options = [ "subvol=log" "compress=zstd:3" "discard=async" "noatime" "ssd" "space_cache=v2" ];
+      neededForBoot = true;
+    };
+
+  fileSystems."/birb" =
+    {
+      options = [ "compress=zstd:3" "discard=async" "relatime" "ssd" "space_cache=v2" ];
+    };
+
   nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
