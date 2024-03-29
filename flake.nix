@@ -2,11 +2,15 @@
   description = "This bird's flake";
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
+
+    rust-overlay.url = "github:oxalica/rust-overlay";
+
   };
 
   outputs =
-    { self
+    inputs@{ self
     , nixpkgs
+    , rust-overlay
     , ...
     }:
     let
@@ -17,7 +21,17 @@
       nixosConfigurations = {
         AtomicBird = lib.nixosSystem {
           system = "x86_64-linux";
-          modules = [ ./configuration.nix ];
+          modules = [
+            ./configuration.nix
+            ({ pkgs, ... }: {
+              nixpkgs.overlays = [ rust-overlay.overlays.default ];
+              environment.systemPackages = [
+                pkgs.rust-bin.stable.latest.default
+                pkgs.rust-analyzer
+                pkgs.rustup
+              ];
+            })
+          ];
         };
       };
     };
