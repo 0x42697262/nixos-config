@@ -112,8 +112,10 @@
       # appimage-run
       # geekbench_6
       # metasploit
+      udiskie
       dunst
       grimblast
+      lxqt.lxqt-policykit
       lazygit
       lynx
       neofetch
@@ -241,6 +243,8 @@
   services.xserver = {
     videoDrivers = [ "nvidia" ];
   };
+
+  services.udisks2.enable = true;
 
   # List services that you want to enable:
   services.automatic-timezoned.enable = true;
