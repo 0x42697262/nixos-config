@@ -251,7 +251,8 @@
     sshd = {
       wantedBy = lib.mkForce [ ];
     };
-    NetworkManager-wait-online.enable = false;
+    NetworkManager-wait-online.wantedBy = lib.mkForce [ ];
+    vmware-networks.wantedBy = lib.mkForce [ ];
   };
 
   # boot.extraModprobeConfig = ''
@@ -270,6 +271,12 @@
   #   ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{power/control}="auto", ATTR{remove}="1"
   # '';
   # boot.blacklistedKernelModules = [ "nouveau" "nvidia" "nvidia_drm" "nvidia_modeset" ];
+
+  virtualisation.vmware.host = {
+    enable = true;
+  };
+
+  security.polkit.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
