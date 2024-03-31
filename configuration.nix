@@ -284,6 +284,14 @@
     enable = true;
     enableExtensionPack = true;
   };
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu.runAsRoot = false;
+    allowedBridges = [
+      "nm-bridge"
+      "virbr0"
+    ];
+  };
 
   security.polkit.enable = true;
 
