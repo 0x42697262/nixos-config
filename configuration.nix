@@ -247,7 +247,8 @@
   services.udisks2.enable = true;
 
   # List services that you want to enable:
-  services.automatic-timezoned.enable = true;
+  # services.automatic-timezoned.enable = true;
+  services.timesyncd.enable = true;
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
@@ -280,10 +281,8 @@
     enable = true;
   };
   virtualisation.virtualbox.host = {
-
     enable = true;
     enableExtensionPack = true;
-    kernelModules = lib.mkForce [ ];
   };
 
   security.polkit.enable = true;
