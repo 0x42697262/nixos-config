@@ -279,6 +279,12 @@
   virtualisation.vmware.host = {
     enable = true;
   };
+  virtualisation.virtualbox.host = {
+
+    enable = true;
+    enableExtensionPack = true;
+    kernelModules = lib.mkForce [ ];
+  };
 
   security.polkit.enable = true;
 
