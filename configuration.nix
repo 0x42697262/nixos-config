@@ -107,11 +107,17 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.birb = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "networkmanager" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [
+      "wheel"
+      "video"
+      "networkmanager"
+      "libvirtd"
+      "libvirt-qemu"
+    ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
       # appimage-run
       # geekbench_6
-      # metasploit
+      metasploit
       udiskie
       dunst
       grimblast
@@ -125,6 +131,7 @@
       slurp
       thunderbird
       tree
+      wget
       waybar
     ];
   };
@@ -169,14 +176,6 @@
           "--noprofile"
         ];
       };
-
-      metasploit = {
-        executable = "${pkgs.metasploit}/bin/metasploit";
-        extraArgs = [
-          "--private=~/firejail"
-          "--noprofile"
-        ];
-      };
     };
   };
 
@@ -201,7 +200,6 @@
     pciutils
     usbutils
     w3m
-    wget
     wireplumber
     wl-clipboard-rs
   ];
@@ -260,6 +258,7 @@
     vmware-networks.wantedBy = lib.mkForce [ ];
   };
 
+  boot.extraModprobeConfig = "options kvm_amd nested=1";
   # boot.extraModprobeConfig = ''
   #   blacklist nouveau
   #   options nouveau modeset=0
@@ -286,11 +285,26 @@
   };
   virtualisation.libvirtd = {
     enable = true;
-    qemu.runAsRoot = false;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      runAsRoot = false;
+      ovmf = {
+        enable = true;
+        packages = [
+          (pkgs.OVMF.override {
+            secureBoot = true;
+            tpmSupport = true;
+          }).fd
+        ];
+      };
+    };
     allowedBridges = [
       "nm-bridge"
       "virbr0"
     ];
+  };
+  programs.virt-manager = {
+    enable = true;
   };
 
   security.polkit.enable = true;
