@@ -98,8 +98,13 @@
   services.printing.enable = true;
 
   # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    jack.enable = true;
+  };
 
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
@@ -115,30 +120,30 @@
       "libvirt-qemu"
     ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
-      # appimage-run
-      # geekbench_6
-      metasploit
-      udiskie
       dunst
       grimblast
-      lxqt.lxqt-policykit
       lazygit
+      lxqt.lxqt-policykit
       lynx
+      metasploit
       neofetch
       nvtop
+      openssl
       pavucontrol
       rofi
       slurp
       thunderbird
       tree
-      wget
+      udiskie
       waybar
+      wget
     ];
   };
 
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
+    portalPackage = pkgs.xdg-desktop-portal-hyprland;
 
   };
   programs.firejail = {
@@ -199,6 +204,7 @@
     openvpn
     pciutils
     usbutils
+    vim
     w3m
     wireplumber
     wl-clipboard-rs
