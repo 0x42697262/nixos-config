@@ -125,6 +125,7 @@
       lazygit
       lxqt.lxqt-policykit
       lynx
+      obs-studio
       metasploit
       neofetch
       nvtop
