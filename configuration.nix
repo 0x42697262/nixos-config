@@ -83,9 +83,15 @@
   #   keyMap = "us";
   #   useXkbConfig = true; # use xkb.options in tty.
   # };
+  i18n.inputMethod = {
+    enabled = "fcitx5";
+    fcitx5.addons = with pkgs; [
+      fcitx5-chewing
+      fcitx5-mozc
+    ];
 
-  # Enable the X11 windowing system.
-  # services.xserver.enable = true;
+  };
+
 
 
 
@@ -120,15 +126,16 @@
       "libvirt-qemu"
     ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
+      texliveFull
       dunst
       grimblast
       lazygit
       lxqt.lxqt-policykit
       lynx
-      obs-studio
       metasploit
       neofetch
       nvtop
+      obs-studio
       openssl
       pavucontrol
       rofi
