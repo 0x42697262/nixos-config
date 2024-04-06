@@ -222,7 +222,7 @@
     noto-fonts
     noto-fonts-cjk
     noto-fonts-emoji
-    calibri
+    vistafonts
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
