@@ -201,6 +201,7 @@
     acpilight
     btop
     firefox
+    vistafonts
     git
     gparted
     htop
