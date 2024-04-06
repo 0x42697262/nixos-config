@@ -201,7 +201,6 @@
     acpilight
     btop
     firefox
-    vistafonts
     git
     gparted
     htop
@@ -217,6 +216,13 @@
     w3m
     wireplumber
     wl-clipboard-rs
+  ];
+
+  fonts.packages = with pkgs; [
+    noto-fonts
+    noto-fonts-cjk
+    noto-fonts-emoji
+    calibri
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
