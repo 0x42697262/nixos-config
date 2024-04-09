@@ -122,11 +122,13 @@
       "wheel"
       "video"
       "networkmanager"
-      "libvirtd"
-      "libvirt-qemu"
     ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
-      texliveFull
+      vlc
+      mpv
+      antora
+      asciidoc-full-with-plugins
+      asciidoctor-with-extensions
       dunst
       grimblast
       lazygit
@@ -140,8 +142,10 @@
       pavucontrol
       rofi
       slurp
+      texliveFull
       thunderbird
       tree
+      typst
       udiskie
       waybar
       wget
