@@ -122,6 +122,7 @@
       "wheel"
       "video"
       "networkmanager"
+      "docker"
     ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
       vlc
@@ -132,6 +133,7 @@
       dunst
       grimblast
       lazygit
+      zathura
       lxqt.lxqt-policykit
       lynx
       metasploit
@@ -301,6 +303,16 @@
   # '';
   # boot.blacklistedKernelModules = [ "nouveau" "nvidia" "nvidia_drm" "nvidia_modeset" ];
 
+
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = false;
+    storageDriver = "btrfs";
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
+  };
   virtualisation.vmware.host = {
     enable = true;
   };
