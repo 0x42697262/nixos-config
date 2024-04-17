@@ -116,6 +116,7 @@
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
 
+  users.defaultUserShell = pkgs.fish;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.birb = {
     isNormalUser = true;
@@ -203,30 +204,32 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    pkgs.linuxKernel.packages.linux_latest_libre.cpupower
     #cpupower
     acpilight
     btop
     firefox
+    fishPlugins.tide
     git
-    zstd
     gparted
     htop
     kitty
-    unzip
     ncdu
     neovim
     nmap
     openvpn
     pciutils
+    pkgs.linuxKernel.packages.linux_latest_libre.cpupower
+    unzip
     usbutils
     vim
     w3m
     wireplumber
     wl-clipboard-rs
+    zstd
   ];
 
   fonts.packages = with pkgs; [
+    meslo-lgs-nf
     noto-fonts
     noto-fonts-cjk
     noto-fonts-emoji
