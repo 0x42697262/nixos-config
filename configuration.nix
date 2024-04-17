@@ -27,6 +27,7 @@
     btrfs subvolume snapshot /mnt/root-clean /mnt/root
   '';
   boot.supportedFilesystems = [ "btrfs" ];
+  boot.tmp.useTmpfs = true;
 
 
 
@@ -208,6 +209,7 @@
     btop
     firefox
     git
+    zstd
     gparted
     htop
     kitty
@@ -341,6 +343,10 @@
     ];
   };
   programs.virt-manager = {
+    enable = true;
+  };
+
+  programs.fish = {
     enable = true;
   };
 
