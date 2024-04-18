@@ -127,6 +127,7 @@
       "docker"
     ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
+      fishPlugins.tide
       vlc
       mpv
       antora
@@ -208,7 +209,6 @@
     acpilight
     btop
     firefox
-    fishPlugins.tide
     git
     gparted
     htop
@@ -351,6 +351,9 @@
 
   programs.fish = {
     enable = true;
+    shellInit = ''
+      set -g fish_greeting
+    '';
   };
 
   security.polkit.enable = true;
