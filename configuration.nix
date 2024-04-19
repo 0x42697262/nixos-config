@@ -201,6 +201,9 @@
     };
   };
 
+  environment.shellAliases = {
+    ls = "lsd -la";
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -209,6 +212,7 @@
     acpilight
     btop
     firefox
+    lsd
     git
     gparted
     htop
@@ -354,6 +358,9 @@
     shellInit = ''
       set -g fish_greeting
     '';
+    shellAbbrs = {
+      Ns = "nix-shell -p --command fish";
+    };
   };
 
   security.polkit.enable = true;
