@@ -203,7 +203,13 @@
 
   environment.shellAliases = {
     ls = "lsd -la";
+    ".." = "cd ..";
+    "..." = "cd ../..";
+    "...." = "cd ../../..";
+    "....." = "cd ../../../..";
+    "......" = "cd ../../../../..";
   };
+
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -247,6 +253,8 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
+
+  hardware.bluetooth.enable = true;
 
   hardware.opentabletdriver = {
     enable = true;
