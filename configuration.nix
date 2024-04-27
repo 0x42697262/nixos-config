@@ -168,13 +168,13 @@
     enable = true;
     wrappedBinaries = {
 
-      # osu = {
-      #   executable = "${pkgs.osu-lazer-bin}/bin/osu!";
-      #   extraArgs = [
-      #     "--private=~/firejail"
-      #     "--noprofile"
-      #   ];
-      # };
+      osu = {
+        executable = "${pkgs.osu-lazer-bin}/bin/osu!";
+        extraArgs = [
+          "--private=~/firejail"
+          "--noprofile"
+        ];
+      };
 
       chromium = {
         executable = "${pkgs.chromium}/bin/chromium";
