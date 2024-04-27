@@ -20,12 +20,6 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
   hardware.enableAllFirmware = true;
 
-  boot.initrd.postDeviceCommands = lib.mkAfter ''
-    mkdir /mnt
-    mount -t btrfs /dev/mapper/root /mnt
-    btrfs subvolume delete /mnt/root
-    btrfs subvolume snapshot /mnt/root-clean /mnt/root
-  '';
   boot.supportedFilesystems = [ "btrfs" ];
   boot.tmp.useTmpfs = true;
 
@@ -63,6 +57,13 @@
     {
       options = [ "compress=zstd:3" "discard=async" "relatime" "ssd" "space_cache=v2" ];
     };
+
+  boot.initrd.postDeviceCommands = lib.mkAfter ''
+    mkdir /mnt
+    mount -t btrfs /dev/mapper/root /mnt
+    btrfs subvolume delete /mnt/root
+    btrfs subvolume snapshot /mnt/root-clean /mnt/root
+  '';
 
   nixpkgs.config.allowUnfree = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -167,13 +168,13 @@
     enable = true;
     wrappedBinaries = {
 
-      osu = {
-        executable = "${pkgs.osu-lazer-bin}/bin/osu!";
-        extraArgs = [
-          "--private=~/firejail"
-          "--noprofile"
-        ];
-      };
+      # osu = {
+      #   executable = "${pkgs.osu-lazer-bin}/bin/osu!";
+      #   extraArgs = [
+      #     "--private=~/firejail"
+      #     "--noprofile"
+      #   ];
+      # };
 
       chromium = {
         executable = "${pkgs.chromium}/bin/chromium";
@@ -285,7 +286,7 @@
   services.xserver = {
     videoDrivers = [ "nvidia" ];
   };
-
+  services.blueman.enable = true;
   services.udisks2.enable = true;
 
   # List services that you want to enable:
@@ -368,6 +369,7 @@
     '';
     shellAbbrs = {
       Ns = "nix-shell -p --command fish";
+      Nd = "nix develop";
     };
   };
 
