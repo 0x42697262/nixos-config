@@ -226,11 +226,11 @@
     acpilight
     btop
     firefox
-    lsd
     git
     gparted
     htop
     kitty
+    lsd
     ncdu
     neovim
     nmap
@@ -241,6 +241,7 @@
     usbutils
     vim
     w3m
+    wireguard-go
     wireplumber
     wl-clipboard-rs
     zstd
