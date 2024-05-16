@@ -241,7 +241,7 @@
     usbutils
     vim
     w3m
-    wireguard-go
+    wireguard-tools
     wireplumber
     wl-clipboard-rs
     zstd
