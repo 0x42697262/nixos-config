@@ -168,6 +168,13 @@
     enable = true;
     wrappedBinaries = {
 
+      steam = {
+        executable = "${pkgs.steam}/bin/steam";
+        extraArgs = [
+          "--private=~/firejail"
+          "--noprofile"
+        ];
+      };
       osu = {
         executable = "${pkgs.osu-lazer-bin}/bin/osu!";
         extraArgs = [
