@@ -115,7 +115,7 @@
   };
 
   # Enable touchpad support (enabled default in most desktopManager).
-  services.xserver.libinput.enable = true;
+  services.libinput.enable = true;
 
   users.defaultUserShell = pkgs.fish;
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -162,11 +162,19 @@
     enable = true;
     xwayland.enable = true;
     portalPackage = pkgs.xdg-desktop-portal-hyprland;
-
   };
+
   programs.firejail = {
     enable = true;
     wrappedBinaries = {
+
+      steam = {
+        executable = "${pkgs.steam}/bin/steam";
+        extraArgs = [
+          "--private=~/firejail"
+          "--noprofile"
+        ];
+      };
 
       osu = {
         executable = "${pkgs.osu-lazer-bin}/bin/osu!";
