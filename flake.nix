@@ -2,7 +2,7 @@
   description = "This bird's flake";
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
-
+    # nixpkgs.url = "nixpkgs/nixos-unstable-small";
     rust-overlay.url = "github:oxalica/rust-overlay";
 
   };
