@@ -128,19 +128,18 @@
       "docker"
     ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
-      fishPlugins.tide
-      vlc
-      mpv
       antora
       asciidoc-full-with-plugins
       asciidoctor-with-extensions
       dunst
+      fishPlugins.tide
+      gcc
       grimblast
       lazygit
-      zathura
       lxqt.lxqt-policykit
       lynx
       metasploit
+      mpv
       neofetch
       nvtop
       obs-studio
@@ -153,10 +152,66 @@
       tree
       typst
       udiskie
+      vlc
       waybar
       wget
+      zathura
     ];
   };
+
+
+  # nixpkgs.overlays = [
+  #   (self: super: {
+  #     vmware-workstation = super.vmware-workstation.overrideAttrs (vself: vsuper:
+  #       let
+  #         urlBase = "https://softwareupdate.vmware.com/cds/vmw-desktop/ws/${vself.version}/${vself.build}/linux/";
+  #         file = "VMware-Workstation-${vself.version}-${vself.build}.x86_64.bundle";
+  #       in
+  #       {
+  #         src = "${self.fetchzip {
+  #     url = urlBase + "core/${file}.tar";
+  #     hash = "sha256-5PZZpXN/V687TXjqeTm8MEays4/QTf02jVfdpi9C7GI=";
+  #     stripRoot=false;
+  #   }}/${file}";
+  #         unpackPhase =
+  #           let
+  #             vmware-unpack-env = self.buildFHSEnv {
+  #               name = "vmware-unpack-env";
+  #               targetPkgs = pkgs: [ self.zlib ];
+  #             };
+  #             vmware-tools =
+  #               let
+  #                 version = "12.4.0";
+  #                 build = "23259341";
+  #                 file = system: "vmware-tools-${system}-${version}-${build}.x86_64.component";
+  #                 hashes = {
+  #                   linux = "sha256-vT08mR6cCXZjiQgb9jy+MaqYzS0hFbNUM7xGAHIJ8Ao=";
+  #                   linuxPreGlibc25 = "sha256-BodN1lxuhxyLlxIQSlVhGKItJ10VPlti/sEyxcRF2SA=";
+  #                   netware = "sha256-o/S4wAYLR782Fn20fTQ871+rzsa1twnAxb9laV16XIk=";
+  #                   solaris = "sha256-3LdFoI4TD5zxlohDGR3DRGbF6jwDZAoSMEpHWU4vSGU=";
+  #                   winPre2k = "sha256-+QcvWfY3aCDxUwAfSuj7Wf9sxIO+ztWBrRolMim8Dfw=";
+  #                   winPreVista = "sha256-3NgO/GdRFTpKNo45TMet0msjzxduuoF4nVLtnOUTHUA=";
+  #                   windows = "sha256-2F7UPjNvtibmWAJxpB8IOnol12aMOGMy+403WeCTXw8=";
+  #                 };
+  #                 srcs = map
+  #                   (system:
+  #                     "${self.fetchzip {
+  #           url = urlBase + "packages/${file system}.tar";
+  #           hash = hashes.${system};
+  #           stripRoot=false;
+  #         }}/${file system}"
+  #                   )
+  #                   (builtins.attrNames hashes);
+  #               in
+  #               lib.concatMapStringsSep " " (src: "--install-component ${src}") srcs;
+  #           in
+  #           ''
+  #             ${vmware-unpack-env}/bin/vmware-unpack-env -c "sh ${vself.src} ${vmware-tools} --extract unpacked"
+  #           '';
+  #       });
+  #   })
+  # ];
+
 
   programs.hyprland = {
     enable = true;
@@ -167,23 +222,6 @@
   programs.firejail = {
     enable = true;
     wrappedBinaries = {
-
-      steam = {
-        executable = "${pkgs.steam}/bin/steam";
-        extraArgs = [
-          "--private=~/firejail"
-          "--noprofile"
-        ];
-      };
-
-      osu = {
-        executable = "${pkgs.osu-lazer-bin}/bin/osu!";
-        extraArgs = [
-          "--private=~/firejail"
-          "--noprofile"
-        ];
-      };
-
       chromium = {
         executable = "${pkgs.chromium}/bin/chromium";
         extraArgs = [
@@ -385,57 +423,6 @@
   security.polkit.enable = true;
 
 
-  nixpkgs.overlays = [
-    (self: super: {
-      vmware-workstation = super.vmware-workstation.overrideAttrs (vself: vsuper:
-        let
-          urlBase = "https://softwareupdate.vmware.com/cds/vmw-desktop/ws/${vself.version}/${vself.build}/linux/";
-          file = "VMware-Workstation-${vself.version}-${vself.build}.x86_64.bundle";
-        in
-        {
-          src = "${self.fetchzip {
-      url = urlBase + "core/${file}.tar";
-      hash = "sha256-nYkqZ7w3AYdw2YvQNATIYeJpqUwmkLE6jzyQlhGKyEs=";
-      stripRoot=false;
-    }}/${file}";
-          unpackPhase =
-            let
-              vmware-unpack-env = self.buildFHSEnv {
-                name = "vmware-unpack-env";
-                targetPkgs = pkgs: [ self.zlib ];
-              };
-              vmware-tools =
-                let
-                  version = "12.3.5";
-                  build = "22544099";
-                  file = system: "vmware-tools-${system}-${version}-${build}.x86_64.component";
-                  hashes = {
-                    linux = "sha256-VHFc2g9Bpz7RaJDTB+MXZ2VKe6YfcM1Y2qcqL75mOgw=";
-                    linuxPreGlibc25 = "sha256-ubxS82tyY/biGSBPvPFsggKLYRXUMVJU9dqNfILa7OY=";
-                    netware = "sha256-Fs+R4RTgbV+SlFuz7DO/NXdqfMMXf05eSmIfD8AWjvI=";
-                    solaris = "sha256-HajtvDG/iPUmi7clO2wkSQRMWsOI/rLFHVDlw/vL4wI=";
-                    winPre2k = "sha256-lX4uvJRFSUIzm6cxCCuZwrsgPuRE2Wr1+GYFY0Qk8Tw=";
-                    winPreVista = "sha256-xA3UvxIS7u435T0LsyMTCHFUZL9dkTXuekXexOWkXRc=";
-                    windows = "sha256-/UrzEQTBhmuQODnNoNPQD4pI4MNCxordb/FxVPS3A9o=";
-                  };
-                  srcs = map
-                    (system:
-                      "${self.fetchzip {
-            url = urlBase + "packages/${file system}.tar";
-            hash = hashes.${system};
-            stripRoot=false;
-          }}/${file system}"
-                    )
-                    (builtins.attrNames hashes);
-                in
-                lib.concatMapStringsSep " " (src: "--install-component ${src}") srcs;
-            in
-            ''
-              ${vmware-unpack-env}/bin/vmware-unpack-env -c "sh ${vself.src} ${vmware-tools} --extract unpacked"
-            '';
-        });
-    })
-  ];
 
   # networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
   #
