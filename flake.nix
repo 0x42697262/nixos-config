@@ -4,7 +4,6 @@
     nixpkgs.url = "nixpkgs/nixos-unstable";
     # nixpkgs.url = "nixpkgs/nixos-unstable-small";
     rust-overlay.url = "github:oxalica/rust-overlay";
-
   };
 
   outputs =

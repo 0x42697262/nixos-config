@@ -159,69 +159,36 @@
     ];
   };
 
-
-  # nixpkgs.overlays = [
-  #   (self: super: {
-  #     vmware-workstation = super.vmware-workstation.overrideAttrs (vself: vsuper:
-  #       let
-  #         urlBase = "https://softwareupdate.vmware.com/cds/vmw-desktop/ws/${vself.version}/${vself.build}/linux/";
-  #         file = "VMware-Workstation-${vself.version}-${vself.build}.x86_64.bundle";
-  #       in
-  #       {
-  #         src = "${self.fetchzip {
-  #     url = urlBase + "core/${file}.tar";
-  #     hash = "sha256-5PZZpXN/V687TXjqeTm8MEays4/QTf02jVfdpi9C7GI=";
-  #     stripRoot=false;
-  #   }}/${file}";
-  #         unpackPhase =
-  #           let
-  #             vmware-unpack-env = self.buildFHSEnv {
-  #               name = "vmware-unpack-env";
-  #               targetPkgs = pkgs: [ self.zlib ];
-  #             };
-  #             vmware-tools =
-  #               let
-  #                 version = "12.4.0";
-  #                 build = "23259341";
-  #                 file = system: "vmware-tools-${system}-${version}-${build}.x86_64.component";
-  #                 hashes = {
-  #                   linux = "sha256-vT08mR6cCXZjiQgb9jy+MaqYzS0hFbNUM7xGAHIJ8Ao=";
-  #                   linuxPreGlibc25 = "sha256-BodN1lxuhxyLlxIQSlVhGKItJ10VPlti/sEyxcRF2SA=";
-  #                   netware = "sha256-o/S4wAYLR782Fn20fTQ871+rzsa1twnAxb9laV16XIk=";
-  #                   solaris = "sha256-3LdFoI4TD5zxlohDGR3DRGbF6jwDZAoSMEpHWU4vSGU=";
-  #                   winPre2k = "sha256-+QcvWfY3aCDxUwAfSuj7Wf9sxIO+ztWBrRolMim8Dfw=";
-  #                   winPreVista = "sha256-3NgO/GdRFTpKNo45TMet0msjzxduuoF4nVLtnOUTHUA=";
-  #                   windows = "sha256-2F7UPjNvtibmWAJxpB8IOnol12aMOGMy+403WeCTXw8=";
-  #                 };
-  #                 srcs = map
-  #                   (system:
-  #                     "${self.fetchzip {
-  #           url = urlBase + "packages/${file system}.tar";
-  #           hash = hashes.${system};
-  #           stripRoot=false;
-  #         }}/${file system}"
-  #                   )
-  #                   (builtins.attrNames hashes);
-  #               in
-  #               lib.concatMapStringsSep " " (src: "--install-component ${src}") srcs;
-  #           in
-  #           ''
-  #             ${vmware-unpack-env}/bin/vmware-unpack-env -c "sh ${vself.src} ${vmware-tools} --extract unpacked"
-  #           '';
-  #       });
-  #   })
-  # ];
-
-
   programs.hyprland = {
     enable = true;
-    xwayland.enable = true;
+    # xwayland.enable = true;
     portalPackage = pkgs.xdg-desktop-portal-hyprland;
   };
-
+  xdg.portal = {
+    enable = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-hyprland
+    ];
+  };
   programs.firejail = {
     enable = true;
+
     wrappedBinaries = {
+
+      osu = {
+        executable = "${pkgs.osu-lazer}/bin/osu!";
+        extraArgs = [
+          "--private=~/firejail"
+          "--noprofile"
+        ];
+      };
+      steam = {
+        executable = "${pkgs.steam}/bin/steam";
+        extraArgs = [
+          "--private=~/firejail"
+          "--noprofile"
+        ];
+      };
       chromium = {
         executable = "${pkgs.chromium}/bin/chromium";
         extraArgs = [
@@ -378,9 +345,10 @@
       setSocketVariable = true;
     };
   };
-  virtualisation.vmware.host = {
-    enable = true;
-  };
+  virtualisation.waydroid.enable = true;
+  # virtualisation.vmware.host = {
+  #   enable = true;
+  # };
   virtualisation.virtualbox.host = {
     enable = true;
     enableExtensionPack = true;
@@ -433,7 +401,6 @@
   #   fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
   #   dnsovertls = "true";
   # };
-
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
