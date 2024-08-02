@@ -104,7 +104,24 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
+  services.printing.drivers = [ pkgs.epson_201207w ];
 
+  # hardware.printers = {
+  #
+  #   ensurePrinters = [
+  #     {
+  #
+  #       name = "EPSON_L120_Series";
+  #       location = "Local Printer";
+  #       deviceUri = "usb://EPSON/L120%20Series?serial=5450334B4232373696";
+  #       model = "";
+  #       ppdOptions = {
+  #         PageSize = "A4";
+  #       };
+  #     }
+  #   ];
+  #   ensureDefaultPrinter = "EPSON_L120_Series";
+  # };
   # Enable sound.
   services.pipewire = {
     enable = true;
