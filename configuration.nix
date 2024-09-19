@@ -5,6 +5,42 @@
 { config, lib, pkgs, ... }:
 
 {
+  nixpkgs.overlays = [
+    (
+      final: prev: {
+        linuxPackages_latest = prev.linuxPackages_latest.extend (
+          _lpfinal: _lpprev: {
+            vmware = prev.linuxPackages_latest.vmware.overrideAttrs (_oldAttrs: {
+              version = "workstation-17.5.2-k6.9+-unstable-2024-08-22";
+              src = final.fetchFromGitHub {
+                owner = "nan0desu";
+                repo = "vmware-host-modules";
+                rev = "b489870663afa6bb60277a42a6390c032c63d0fa";
+                hash = "sha256-9t4a4rnaPA4p/SccmOwsL0GsH2gTWlvFkvkRoZX4DJE=";
+              };
+            });
+          }
+        );
+      }
+    )
+  ];
+  # nixpkgs.overlays = [
+  #   (final: prev: {
+  #     linuxPackages_latest = prev.linuxPackages_latest.extend (lpself: lpsuper: {
+  #       vmware = prev.linuxPackages.vmware.overrideAttrs (old: {
+  #         patches = (old.patches or [ ]) ++ [
+  #           (prev.fetchpatch {
+  #             url = "https://github.com/nan0desu/vmware-host-modules/commit/d9f51eee7513715830ac214f1b25db79059f5270.patch";
+  #             hash = "sha256-9NfbJX4QztuvkeKZYvlB8kdvls3dTlzpBc0ftj/9ZZE=";
+  #           })
+  #           # ./patches/vmware.patch
+  #         ];
+  #         version = "workstation-17.5.2-k6.9+";
+  #       });
+  #     });
+  #   })
+  # ];
+
   imports =
     [
       # Include the results of the hardware scan.
@@ -18,12 +54,11 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelParams = [ "nvidia_drm.fbdev=1" ];
   hardware.enableAllFirmware = true;
 
   boot.supportedFilesystems = [ "btrfs" ];
   boot.tmp.useTmpfs = true;
-
-
 
 
   fileSystems."/" =
@@ -145,6 +180,7 @@
       "docker"
     ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
+      android-studio
       antora
       asciidoc-full-with-plugins
       asciidoctor-with-extensions
@@ -173,6 +209,7 @@
       waybar
       wget
       zathura
+      vesktop
     ];
   };
 
@@ -244,31 +281,32 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    #cpupower
-    acpilight
-    btop
-    firefox
-    git
-    gparted
-    htop
-    kitty
-    lsd
-    ncdu
-    neovim
-    nmap
-    openvpn
-    pciutils
-    pkgs.linuxKernel.packages.linux_latest_libre.cpupower
-    unzip
-    usbutils
-    vim
-    w3m
-    wireguard-tools
-    wireplumber
-    wl-clipboard-rs
-    zstd
-  ];
+  environment.systemPackages = with pkgs;
+    [
+      #cpupower
+      acpilight
+      btop
+      firefox
+      git
+      gparted
+      htop
+      kitty
+      lsd
+      ncdu
+      neovim
+      nmap
+      openvpn
+      pciutils
+      pkgs.linuxKernel.packages.linux_latest_libre.cpupower
+      unzip
+      usbutils
+      vim
+      w3m
+      wireguard-tools
+      wireplumber
+      wl-clipboard-rs
+      zstd
+    ];
 
   fonts.packages = with pkgs; [
     meslo-lgs-nf
@@ -312,12 +350,14 @@
     };
   };
 
+  services.fwupd.enable = true;
   services.xserver = {
     videoDrivers = [ "nvidia" ];
   };
   services.blueman.enable = true;
   services.udisks2.enable = true;
-
+  # services.desktopManager.cosmic.enable = true;
+  # services.displayManager.cosmic-greeter.enable = true;
   # List services that you want to enable:
   # services.automatic-timezoned.enable = true;
   services.timesyncd.enable = true;
@@ -361,9 +401,10 @@
     };
   };
   virtualisation.waydroid.enable = true;
-  # virtualisation.vmware.host = {
-  #   enable = true;
-  # };
+
+  virtualisation.vmware.host = {
+    enable = true;
+  };
   virtualisation.virtualbox.host = {
     enable = true;
     enableExtensionPack = true;
@@ -405,7 +446,57 @@
 
   security.polkit.enable = true;
 
-
+  # nixpkgs.overlays = [
+  #   (self: super: {
+  #     vmware-workstation = super.vmware-workstation.overrideAttrs (vself: vsuper:
+  #       let
+  #         urlBase = "https://softwareupdate.vmware.com/cds/vmw-desktop/ws/${vself.version}/${vself.build}/linux/";
+  #         file = "VMware-Workstation-${vself.version}-${vself.build}.x86_64.bundle";
+  #       in
+  #       {
+  #         src = "${self.fetchzip {
+  #     url = urlBase + "core/${file}.tar";
+  #     hash = "sha256-5PZZpXN/V687TXjqeTm8MEays4/QTf02jVfdpi9C7GI=";
+  #     stripRoot=false;
+  #   }}/${file}";
+  #         unpackPhase =
+  #           let
+  #             vmware-unpack-env = self.buildFHSEnv {
+  #               name = "vmware-unpack-env";
+  #               targetPkgs = pkgs: [ self.zlib ];
+  #             };
+  #             vmware-tools =
+  #               let
+  #                 version = "12.4.0";
+  #                 build = "23259341";
+  #                 file = system: "vmware-tools-${system}-${version}-${build}.x86_64.component";
+  #                 hashes = {
+  #                   linux = "sha256-vT08mR6cCXZjiQgb9jy+MaqYzS0hFbNUM7xGAHIJ8Ao=";
+  #                   linuxPreGlibc25 = "sha256-BodN1lxuhxyLlxIQSlVhGKItJ10VPlti/sEyxcRF2SA=";
+  #                   netware = "sha256-o/S4wAYLR782Fn20fTQ871+rzsa1twnAxb9laV16XIk=";
+  #                   solaris = "sha256-3LdFoI4TD5zxlohDGR3DRGbF6jwDZAoSMEpHWU4vSGU=";
+  #                   winPre2k = "sha256-+QcvWfY3aCDxUwAfSuj7Wf9sxIO+ztWBrRolMim8Dfw=";
+  #                   winPreVista = "sha256-3NgO/GdRFTpKNo45TMet0msjzxduuoF4nVLtnOUTHUA=";
+  #                   windows = "sha256-2F7UPjNvtibmWAJxpB8IOnol12aMOGMy+403WeCTXw8=";
+  #                 };
+  #                 srcs = map
+  #                   (system:
+  #                     "${self.fetchzip {
+  #           url = urlBase + "packages/${file system}.tar";
+  #           hash = hashes.${system};
+  #           stripRoot=false;
+  #         }}/${file system}"
+  #                   )
+  #                   (builtins.attrNames hashes);
+  #               in
+  #               lib.concatMapStringsSep " " (src: "--install-component ${src}") srcs;
+  #           in
+  #           ''
+  #             ${vmware-unpack-env}/bin/vmware-unpack-env -c "sh ${vself.src} ${vmware-tools} --extract unpacked"
+  #           '';
+  #       });
+  #   })
+  # ];
 
   # networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
   #
