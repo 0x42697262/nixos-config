@@ -444,6 +444,8 @@
     };
   };
 
+  zramSwap.enable = true;
+
   security.polkit.enable = true;
 
   # nixpkgs.overlays = [
