@@ -24,22 +24,6 @@
       }
     )
   ];
-  # nixpkgs.overlays = [
-  #   (final: prev: {
-  #     linuxPackages_latest = prev.linuxPackages_latest.extend (lpself: lpsuper: {
-  #       vmware = prev.linuxPackages.vmware.overrideAttrs (old: {
-  #         patches = (old.patches or [ ]) ++ [
-  #           (prev.fetchpatch {
-  #             url = "https://github.com/nan0desu/vmware-host-modules/commit/d9f51eee7513715830ac214f1b25db79059f5270.patch";
-  #             hash = "sha256-9NfbJX4QztuvkeKZYvlB8kdvls3dTlzpBc0ftj/9ZZE=";
-  #           })
-  #           # ./patches/vmware.patch
-  #         ];
-  #         version = "workstation-17.5.2-k6.9+";
-  #       });
-  #     });
-  #   })
-  # ];
 
   imports =
     [
@@ -181,6 +165,7 @@
     ]; # Enable ‘sudo’ for the user.
     packages = with pkgs; [
       android-studio
+      anki
       antora
       asciidoc-full-with-plugins
       asciidoctor-with-extensions
@@ -236,13 +221,13 @@
           "--noprofile"
         ];
       };
-      steam = {
-        executable = "${pkgs.steam}/bin/steam";
-        extraArgs = [
-          "--private=~/firejail"
-          "--noprofile"
-        ];
-      };
+      # steam = {
+      #   executable = "${pkgs.steam}/bin/steam";
+      #   extraArgs = [
+      #     "--private=~/firejail"
+      #     "--noprofile"
+      #   ];
+      # };
       chromium = {
         executable = "${pkgs.chromium}/bin/chromium";
         extraArgs = [
@@ -444,61 +429,17 @@
     };
   };
 
+  programs.steam = {
+    enable = true;
+    # remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    # dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    # localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+  };
+
   zramSwap.enable = true;
 
   security.polkit.enable = true;
 
-  # nixpkgs.overlays = [
-  #   (self: super: {
-  #     vmware-workstation = super.vmware-workstation.overrideAttrs (vself: vsuper:
-  #       let
-  #         urlBase = "https://softwareupdate.vmware.com/cds/vmw-desktop/ws/${vself.version}/${vself.build}/linux/";
-  #         file = "VMware-Workstation-${vself.version}-${vself.build}.x86_64.bundle";
-  #       in
-  #       {
-  #         src = "${self.fetchzip {
-  #     url = urlBase + "core/${file}.tar";
-  #     hash = "sha256-5PZZpXN/V687TXjqeTm8MEays4/QTf02jVfdpi9C7GI=";
-  #     stripRoot=false;
-  #   }}/${file}";
-  #         unpackPhase =
-  #           let
-  #             vmware-unpack-env = self.buildFHSEnv {
-  #               name = "vmware-unpack-env";
-  #               targetPkgs = pkgs: [ self.zlib ];
-  #             };
-  #             vmware-tools =
-  #               let
-  #                 version = "12.4.0";
-  #                 build = "23259341";
-  #                 file = system: "vmware-tools-${system}-${version}-${build}.x86_64.component";
-  #                 hashes = {
-  #                   linux = "sha256-vT08mR6cCXZjiQgb9jy+MaqYzS0hFbNUM7xGAHIJ8Ao=";
-  #                   linuxPreGlibc25 = "sha256-BodN1lxuhxyLlxIQSlVhGKItJ10VPlti/sEyxcRF2SA=";
-  #                   netware = "sha256-o/S4wAYLR782Fn20fTQ871+rzsa1twnAxb9laV16XIk=";
-  #                   solaris = "sha256-3LdFoI4TD5zxlohDGR3DRGbF6jwDZAoSMEpHWU4vSGU=";
-  #                   winPre2k = "sha256-+QcvWfY3aCDxUwAfSuj7Wf9sxIO+ztWBrRolMim8Dfw=";
-  #                   winPreVista = "sha256-3NgO/GdRFTpKNo45TMet0msjzxduuoF4nVLtnOUTHUA=";
-  #                   windows = "sha256-2F7UPjNvtibmWAJxpB8IOnol12aMOGMy+403WeCTXw8=";
-  #                 };
-  #                 srcs = map
-  #                   (system:
-  #                     "${self.fetchzip {
-  #           url = urlBase + "packages/${file system}.tar";
-  #           hash = hashes.${system};
-  #           stripRoot=false;
-  #         }}/${file system}"
-  #                   )
-  #                   (builtins.attrNames hashes);
-  #               in
-  #               lib.concatMapStringsSep " " (src: "--install-component ${src}") srcs;
-  #           in
-  #           ''
-  #             ${vmware-unpack-env}/bin/vmware-unpack-env -c "sh ${vself.src} ${vmware-tools} --extract unpacked"
-  #           '';
-  #       });
-  #   })
-  # ];
 
   # networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
   #
