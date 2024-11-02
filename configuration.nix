@@ -309,6 +309,7 @@
   #   enableSSHSupport = true;
   # };
 
+  hardware.nvidia-container-toolkit.enable = true;
   hardware.bluetooth.enable = true;
 
   hardware.opentabletdriver = {
