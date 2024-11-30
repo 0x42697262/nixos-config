@@ -5,25 +5,25 @@
 { config, lib, pkgs, ... }:
 
 {
-  nixpkgs.overlays = [
-    (
-      final: prev: {
-        linuxPackages_latest = prev.linuxPackages_latest.extend (
-          _lpfinal: _lpprev: {
-            vmware = prev.linuxPackages_latest.vmware.overrideAttrs (_oldAttrs: {
-              version = "workstation-17.5.2-k6.9+-unstable-2024-08-22";
-              src = final.fetchFromGitHub {
-                owner = "nan0desu";
-                repo = "vmware-host-modules";
-                rev = "b489870663afa6bb60277a42a6390c032c63d0fa";
-                hash = "sha256-9t4a4rnaPA4p/SccmOwsL0GsH2gTWlvFkvkRoZX4DJE=";
-              };
-            });
-          }
-        );
-      }
-    )
-  ];
+  # nixpkgs.overlays = [
+  #   (
+  #     final: prev: {
+  #       linuxPackages_latest = prev.linuxPackages_latest.extend (
+  #         _lpfinal: _lpprev: {
+  #           vmware = prev.linuxPackages_latest.vmware.overrideAttrs (_oldAttrs: {
+  #             version = "workstation-17.5.2-k6.9+-unstable-2024-08-22";
+  #             src = final.fetchFromGitHub {
+  #               owner = "nan0desu";
+  #               repo = "vmware-host-modules";
+  #               rev = "b489870663afa6bb60277a42a6390c032c63d0fa";
+  #               hash = "sha256-9t4a4rnaPA4p/SccmOwsL0GsH2gTWlvFkvkRoZX4DJE=";
+  #             };
+  #           });
+  #         }
+  #       );
+  #     }
+  #   )
+  # ];
 
   imports =
     [
@@ -296,7 +296,7 @@
   fonts.packages = with pkgs; [
     meslo-lgs-nf
     noto-fonts
-    noto-fonts-cjk
+    noto-fonts-cjk-sans
     noto-fonts-emoji
     vistafonts
   ];
@@ -456,6 +456,7 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
+  # networking.firewall.allowedTCPPorts = [ 6969 ];
 
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
