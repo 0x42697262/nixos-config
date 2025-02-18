@@ -123,7 +123,8 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
-  services.printing.drivers = [ pkgs.epson_201207w ];
+  # services.printing.drivers = [ pkgs.epson_201207w ];
+  services.tailscale.enable = true;
 
   # hardware.printers = {
   #
@@ -186,6 +187,7 @@
       rofi
       slurp
       texliveFull
+      tigervnc
       thunderbird
       tree
       typst
@@ -394,6 +396,8 @@
   virtualisation.virtualbox.host = {
     enable = true;
     enableExtensionPack = true;
+    enableKvm = true;
+    addNetworkInterface = false;
   };
   virtualisation.libvirtd = {
     enable = true;
