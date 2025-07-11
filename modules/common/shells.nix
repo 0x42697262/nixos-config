@@ -3,7 +3,7 @@
     enable = true;
     shellInit = "set -g fish_greeting";
     shellAbbrs = {
-      Ns = "nix-shell -p --comand fish";
+      Ns = "nix-shell -p --command fish";
       Nd = "nix develop";
     };
   };
