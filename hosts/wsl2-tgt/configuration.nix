@@ -13,16 +13,14 @@
     # <nixos-wsl/modules>
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
   networking.hostName = "wsl2-tgt";
 
   environment.systemPackages = with pkgs; [
     btop
+    fishPlugins.tide
     git
     lsd
     ncdu
-    neovim
     nmap
     unzip
     vim

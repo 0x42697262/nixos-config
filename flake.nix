@@ -8,50 +8,48 @@
   };
 
   outputs = { self, nixpkgs, nixos-wsl, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
+    flake-utils.lib.eachDefaultSystem
+      (system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        in
+        { formatter = pkgs.nixpkgs-fmt; }) // {
+      nixosConfigurations = {
+        wsl2-tgt = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            nixos-wsl.nixosModules.default
+            ./hosts/wsl2-tgt/configuration.nix
+            ./modules/common/editors.nix
+            ./modules/common/nix.nix
+            ./modules/common/users.nix
+            # ./modules/wsl.nix
+          ];
         };
-      in {
-        formatter = pkgs.nixpkgs-fmt;
-      }) // {
-        nixosConfigurations = {
-          hostpc = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              # ./hosts/hostpc/configuration.nix
-              # ./modules/common/nix.nix
-              # ./modules/common/users.nix
-              # ./modules/desktop/gnome.nix
-            ];
-          };
 
-          vm1 = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              # ./hosts/vm1/configuration.nix
-              # ./modules/common/nix.nix
-              # ./modules/common/users.nix
-            ];
-          };
+        hostpc = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            # ./hosts/hostpc/configuration.nix
+            ./modules/common/editors.nix
+            ./modules/common/nix.nix
+            ./modules/common/users.nix
+            # ./modules/desktop/gnome.nix
+          ];
+        };
 
-          wsl2-tgt = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              nixos-wsl.nixosModules.default
-	      # {
-	      #   system.stateVersion = "25.05";
-	      #   wsl.enable = true;
-	      # }
-              ./hosts/wsl2-tgt/configuration.nix
-              # ./modules/common/nix.nix
-              # ./modules/common/users.nix
-              # ./modules/wsl.nix
-            ];
-          };
+        vm1 = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            # ./hosts/vm1/configuration.nix
+            ./modules/common/editors.nix
+            # ./modules/common/nix.nix
+            # ./modules/common/users.nix
+          ];
         };
       };
+    };
 }
-
