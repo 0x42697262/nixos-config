@@ -25,6 +25,7 @@
             ./hosts/wsl2-tgt/configuration.nix
             ./modules/common/editors.nix
             ./modules/common/nix.nix
+            ./modules/common/shells.nix
             ./modules/common/users.nix
             # ./modules/wsl.nix
           ];
@@ -36,6 +37,7 @@
             # ./hosts/hostpc/configuration.nix
             ./modules/common/editors.nix
             ./modules/common/nix.nix
+            ./modules/common/shells.nix
             ./modules/common/users.nix
             # ./modules/desktop/gnome.nix
           ];
