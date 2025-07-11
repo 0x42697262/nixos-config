@@ -15,21 +15,18 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-
   networking.hostName = "wsl2-tgt";
 
-  environment.systemPackages = with pkgs;
-    [
-      btop
-      git
-      kitty
-      lsd
-      ncdu
-      neovim
-      nmap
-      unzip
-      vim
-    ];
+  environment.systemPackages = with pkgs; [
+    btop
+    git
+    lsd
+    ncdu
+    neovim
+    nmap
+    unzip
+    vim
+  ];
 
   wsl.enable = true;
   wsl.defaultUser = "slave";
