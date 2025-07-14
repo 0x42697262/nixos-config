@@ -22,6 +22,7 @@
     lsd
     ncdu
     nmap
+    ripgrep
     unzip
     vim
   ];
