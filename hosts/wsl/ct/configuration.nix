@@ -8,6 +8,10 @@
 { config, lib, pkgs, ... }:
 
 {
+  imports = [
+    ./packages.nix
+  ];
+
   wsl.enable = true;
   wsl.defaultUser = "chicken";
   networking.hostName = "wsl-work-ct";
