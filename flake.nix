@@ -37,6 +37,7 @@
 	    inherit self inputs;
 	  };
           modules = [
+	     { nixpkgs.config.allowUnfree = true; }
             nixos-wsl.nixosModules.default
             ./hosts/wsl/ct/configuration.nix
             ./hosts/wsl/wsl.nix
