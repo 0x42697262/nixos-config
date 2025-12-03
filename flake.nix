@@ -36,23 +36,7 @@
           modules = [
             nixos-wsl.nixosModules.default
             ./hosts/wsl/ct/configuration.nix
-            ./modules/common/editors.nix
-            ./modules/common/nix.nix
-            ./modules/common/shells.nix
-            ./modules/common/users.nix
-            # ./modules/wsl.nix
-          ];
-        };
-
-        work-ct = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            ./hosts/vm/work-ct/configuration.nix
-            ./modules/common/editors.nix
-            ./modules/common/nix.nix
-            ./modules/common/shells.nix
-            ./modules/common/users.nix
-            # ./modules/wsl.nix
+            ./modules/wsl/wsl.nix
           ];
         };
 
