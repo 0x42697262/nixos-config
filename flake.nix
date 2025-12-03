@@ -7,7 +7,7 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, nixos-wsl, flake-utils, ... }:
+  outputs = { self, nixpkgs, nixos-wsl, flake-utils, ... }@inputs:
     flake-utils.lib.eachDefaultSystem
       (system:
         let
@@ -33,10 +33,13 @@
 
         wsl-work-ct = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
+	  specialArgs = {
+	    inherit self inputs;
+	  };
           modules = [
             nixos-wsl.nixosModules.default
             ./hosts/wsl/ct/configuration.nix
-            ./modules/wsl/wsl.nix
+            ./hosts/wsl/wsl.nix
           ];
         };
 
