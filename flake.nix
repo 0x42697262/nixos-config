@@ -31,6 +31,18 @@
           ];
         };
 
+        work-ct = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./hosts/vms/work-ct/configuration.nix
+            ./modules/common/editors.nix
+            ./modules/common/nix.nix
+            ./modules/common/shells.nix
+            ./modules/common/users.nix
+            # ./modules/wsl.nix
+          ];
+        };
+
         hostpc = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
