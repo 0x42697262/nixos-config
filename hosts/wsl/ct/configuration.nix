@@ -15,14 +15,6 @@
   wsl.enable = true;
   wsl.defaultUser = "chicken";
   networking.hostName = "wsl-work-ct";
-  programs.ssh = {
-    extraConfig = ''
-      Host github.com
-      User git
-      AddKeysToAgent yes
-      IdentityFile ~/.ssh/wsl-work-ct
-    '';
-  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
