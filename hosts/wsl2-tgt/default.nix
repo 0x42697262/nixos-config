@@ -1,6 +1,7 @@
 # wsl2-tgt -- NixOS-WSL instance.
 { pkgs, ... }: {
   myProfiles.interactive.enable = true;
+  myProfiles.zram.enable = false;
 
   networking.hostName = "wsl2-tgt";
 
