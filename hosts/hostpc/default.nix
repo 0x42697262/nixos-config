@@ -3,6 +3,11 @@
 { ... }: {
   # imports = [ ./hardware.nix ];
 
+  # A desktop workstation: interactive tooling + a graphical environment.
+  # (desktop.nix is still a scaffold -- fill in the DE there.)
+  myProfiles.interactive.enable = true;
+  myProfiles.desktop.enable = true;
+
   networking.hostName = "hostpc";
 
   system.stateVersion = "25.11";
