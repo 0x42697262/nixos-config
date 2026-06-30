@@ -1,19 +1,20 @@
 # ct-home (Amazon EC2)
 
-NixOS running on an Amazon EC2 instance. This file is my reminder for how to
-get a fresh box building from this flake, since I always forget.
+NixOS on an Amazon EC2 instance, managed by this flake. Reminder for how to get
+a fresh box building from this repo, since I always forget.
 
 ## What's already handled
 
-The `configuration.nix` here imports nixpkgs' `amazon-image.nix` module, which
-takes care of the EC2-specific plumbing:
+`hosts/ct-home/default.nix` imports the shared EC2 role
+(`modules/roles/ec2.nix`), which pulls in nixpkgs' `amazon-image.nix`. That
+module handles the EC2-specific plumbing:
 
 - GRUB bootloader on the correct device
 - growing the root partition to fill the EBS volume
-- pulling the SSH key you picked at launch into the default user
+- pulling the SSH key you picked at launch into the root user
 
-So launching a NixOS AMI and SSHing in mostly just works. The steps below are
-about turning that stock instance into something managed by **this** flake.
+So a stock NixOS AMI + SSH mostly just works. The steps below turn that stock
+instance into something managed by **this** flake.
 
 ## 0. Launch the instance
 
@@ -22,75 +23,69 @@ This host runs on an **aarch64 / Graviton** instance:
 - AMI ID:   `ami-08dea6dfd1b09cc4a`
 - AMI name: `nixos/26.05.590.ec942ba042da-aarch64-linux`
 
-That's why the flake pins `system = "aarch64-linux"`. Launch on a Graviton
-instance type (e.g. `t4g.*`, `c7g.*`). If you ever rebuild on an x86_64 box
-instead, switch the flake back to `x86_64-linux`.
-
-SSH in with the key you selected at launch:
+That's why the flake pins `system = "aarch64-linux"` for this host. Launch a
+Graviton instance type (`t4g.*`, `c7g.*`), and make sure the security group
+allows inbound TCP 22. SSH in with your launch key:
 
 ```sh
 ssh root@<instance-public-ip>
 ```
 
-## 1. Make sure flakes are enabled
+## 1. First rebuild (flakes not enabled yet)
 
-NixOS AMIs don't enable flakes by default. The flake's own `nix.nix` module
-turns them on permanently, but you need flakes available *once* to do the first
-rebuild. Easiest is to pass them as flags (no config edit needed):
+A stock AMI doesn't have flakes on. This repo's `modules/common/nix.nix` turns
+them on permanently, but the *first* rebuild needs them enabled manually.
+
+> NOTE: NixOS 26.05 ships the rewritten `nixos-rebuild` (Python), which does
+> **not** accept the old `--extra-experimental-features` flag. Enable flakes via
+> the `NIX_CONFIG` env var (works in any shell) or `--option`:
 
 ```sh
---extra-experimental-features "nix-command flakes"
+env NIX_CONFIG="experimental-features = nix-command flakes" \
+  nixos-rebuild switch --flake "github:0x42697262/nixos-config#ct-home"
 ```
 
-(Used inline in step 3.)
+`#ct-home` selects the flake output. Building straight from `github:` needs no
+clone and uses your last pushed commit. (Equivalent: append
+`--option experimental-features "nix-command flakes"` instead of the env var.)
 
-## 2. Get this repo onto the box
+## 2. Later rebuilds
+
+After the first switch, flakes are permanent, so drop the env var entirely:
 
 ```sh
-nix-shell -p git --run "git clone https://github.com/0x42697262/nixos-config.git /etc/nixos/nixos-config"
+nixos-rebuild switch --flake "github:0x42697262/nixos-config#ct-home"
 ```
 
-Or copy it up with `scp -r` / `rsync` from your local machine.
+## 3. Editing on the box (optional)
 
-## 3. Rebuild against this flake
-
-The flake output for this host is `ct-home`:
-
-```sh
-nixos-rebuild switch \
-  --flake /etc/nixos/nixos-config#ct-home \
-  --extra-experimental-features "nix-command flakes"
-```
-
-After this first switch, `nix.nix` has enabled flakes system-wide, so future
-rebuilds can drop the `--extra-experimental-features` flag:
+To iterate locally instead of pushing every change, clone it (the AMI may not
+have `git`, so use `nix-shell`):
 
 ```sh
+nix-shell -p git --run "git clone https://github.com/0x42697262/nixos-config /etc/nixos/nixos-config"
+
 nixos-rebuild switch --flake /etc/nixos/nixos-config#ct-home
 ```
 
-## 4. Day-to-day
+Pull newer nixpkgs later:
 
 ```sh
-# edit config, then:
-nixos-rebuild switch --flake /etc/nixos/nixos-config#ct-home
-
-# pull newer nixpkgs:
 nix flake update /etc/nixos/nixos-config
 nixos-rebuild switch --flake /etc/nixos/nixos-config#ct-home
-
-# test a build without making it the boot default:
-nixos-rebuild test --flake /etc/nixos/nixos-config#ct-home
 ```
+
+> **Flake + git gotcha:** a flake only sees files that git *tracks*. After
+> creating a new file, `git add` it before rebuilding or the build won't see it
+> (`error: path ... does not exist`). Building from `github:` sidesteps this.
 
 ## Notes
 
 - `ct-home` is the **flake output name** (what `#ct-home` selects). The
-  machine's actual hostname comes from EC2 metadata, not from the config.
-- SSH, root-key import, disk growth and the bootloader are all provided by
-  `amazon-image.nix` — don't re-declare them in `configuration.nix`. Just make
-  sure the instance's security group allows inbound TCP 22.
-- `ec2.efi = true;` is set because the instance boots via UEFI.
-- The default login user / fish shell come from the common modules.
-- `system.stateVersion` is pinned in `configuration.nix` — leave it alone on
-  upgrades.
+  machine's hostname comes from EC2 metadata.
+- EC2 plumbing (SSH, root-key import, disk growth, bootloader, `ec2.efi`) lives
+  in the shared role `modules/roles/ec2.nix` — don't re-declare it here.
+- This host gets git + neovim/vim + fish/tide from the role (the `shell` and
+  `editors` profiles). The heavy `interactive` bundle stays off.
+- `system.stateVersion` is pinned in `default.nix` — leave it alone on upgrades.
+```
