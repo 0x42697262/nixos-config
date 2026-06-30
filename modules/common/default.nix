@@ -6,5 +6,6 @@
   imports = [
     ./nix.nix     # flakes + allowUnfree
     ./locale.nix  # timezone + locale
+    ./maintenance.nix  # garbage collection, store optimise, tarball TTL
   ];
 }
