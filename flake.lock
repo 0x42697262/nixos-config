@@ -1,5 +1,18 @@
 {
   "nodes": {
+    "ctSecrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782840368,
+        "narHash": "sha256-0v56xATzGWr6fguw5sFaZ5cWdgYqi4JiScCBbhM0KG0=",
+        "path": "/etc/nixos/secrets",
+        "type": "path"
+      },
+      "original": {
+        "path": "/etc/nixos/secrets",
+        "type": "path"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -88,6 +101,7 @@
     },
     "root": {
       "inputs": {
+        "ctSecrets": "ctSecrets",
         "flake-utils": "flake-utils",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_2"
