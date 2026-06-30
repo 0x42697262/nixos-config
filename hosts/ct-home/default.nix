@@ -22,8 +22,10 @@ in
       tls_letsencrypt_hostname = domain;
       tls_letsencrypt_challenge_type = "TLS-ALPN-01";
 
-      # MagicDNS off for now -- avoids needing a base_domain. Enable later.
-      dns.magic_dns = false;
+      dns = {
+        magic_dns = false;
+        nameservers.global = [ "1.1.1.1" "1.0.0.1" ];
+      };
     };
   };
 
