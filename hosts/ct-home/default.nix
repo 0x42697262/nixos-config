@@ -12,7 +12,11 @@ in
     ../../modules/roles/ec2.nix
   ];
 
-  services.tailscale.enable = true;
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "server";
+  };
+
   services.headscale = {
     enable = true;
     address = "0.0.0.0";
@@ -30,9 +34,7 @@ in
     };
   };
 
-  # headscale runs as a non-root user but must bind privileged port 443.
-  # If the journal still shows a bind error, the module is also restricting
-  # CapabilityBoundingSet -- add CAP_NET_BIND_SERVICE there too (mkForce).
+
   systemd.services.headscale.serviceConfig.AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
 
   networking.firewall.allowedTCPPorts = [ 443 ];
