@@ -1,43 +1,29 @@
 # Profile: interactive
-# Everything a machine you actually sit at and use wants -- editors, a real
-# shell, and the day-to-day CLI tooling. Headless servers leave this off.
+# A full workstation you sit at. Composes the smaller shell + editors profiles
+# and adds the heavier day-to-day CLI tooling on top. Headless boxes that only
+# want shell/editors should enable those flags directly instead of this one.
 { config, lib, pkgs, ... }:
 let
   cfg = config.myProfiles.interactive;
 in
 {
   options.myProfiles.interactive.enable =
-    lib.mkEnableOption "interactive workstation tooling (editors, shell, CLI extras)";
+    lib.mkEnableOption "full interactive workstation (shell + editors + extra CLI tooling)";
 
   config = lib.mkIf cfg.enable {
-    # Default login shell.
-    users.defaultUserShell = pkgs.fish;
+    # Pull in the finer-grained profiles.
+    myProfiles.shell.enable = true;
+    myProfiles.editors.enable = true;
 
-    # Editors.
-    programs.neovim.enable = true;
-    programs.vim.enable = true;
-
-    # Dev / CLI programs.
+    # Extras beyond the shell/editor basics.
     programs.git.enable = true;
     programs.lazygit.enable = true;
     programs.tmux.enable = true;
     programs.ssh.startAgent = true;
 
-    # Shell.
-    programs.fish = {
-      enable = true;
-      shellInit = "set -g fish_greeting";
-      shellAbbrs = {
-        Ns = "nix-shell -p --command fish";
-        Nd = "nix develop";
-      };
-    };
-
-    # Base CLI tooling.
     environment.systemPackages = with pkgs; [
       btop
       curl
-      fishPlugins.tide
       lsd
       ncdu
       ripgrep

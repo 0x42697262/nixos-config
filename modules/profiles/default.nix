@@ -4,6 +4,8 @@
 # booleans for the capabilities it wants. All flags default to off.
 { ... }: {
   imports = [
+    ./shell.nix
+    ./editors.nix
     ./interactive.nix
     ./desktop.nix
     ./gaming.nix
