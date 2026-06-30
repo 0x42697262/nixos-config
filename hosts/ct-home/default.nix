@@ -12,6 +12,7 @@ in
     ../../modules/roles/ec2.nix
   ];
 
+  services.tailscale.enable = true;
   services.headscale = {
     enable = true;
     address = "0.0.0.0";
