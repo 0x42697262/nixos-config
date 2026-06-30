@@ -8,6 +8,14 @@
   };
 
   outputs = { self, nixpkgs, nixos-wsl, flake-utils, ... }@inputs:
+    let
+      mkHost = { system, modules ? [ ] }:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit self inputs; };
+          modules = [ ./modules/common ] ++ modules;
+        };
+    in
     flake-utils.lib.eachDefaultSystem
       (system:
         let
@@ -18,64 +26,41 @@
         in
         { formatter = pkgs.nixpkgs-fmt; }) // {
       nixosConfigurations = {
-        wsl2-tgt = nixpkgs.lib.nixosSystem {
+        wsl2-tgt = mkHost {
           system = "x86_64-linux";
           modules = [
             nixos-wsl.nixosModules.default
-            ./hosts/wsl/wsl2-tgt/configuration.nix
-            ./modules/common/editors.nix
-            ./modules/common/nix.nix
-            ./modules/common/shells.nix
-            ./modules/common/users.nix
-            # ./modules/wsl.nix
+            ./hosts/wsl2-tgt
           ];
         };
 
-        wsl-work-ct = nixpkgs.lib.nixosSystem {
+        wsl-work-ct = mkHost {
           system = "x86_64-linux";
-	  specialArgs = {
-	    inherit self inputs;
-	  };
           modules = [
-	     { nixpkgs.config.allowUnfree = true; }
             nixos-wsl.nixosModules.default
-            ./hosts/wsl/ct/configuration.nix
-            ./hosts/wsl/wsl.nix
+            ./hosts/wsl-work-ct
           ];
         };
 
-        hostpc = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            # ./hosts/hostpc/configuration.nix
-            ./modules/common/editors.nix
-            ./modules/common/nix.nix
-            ./modules/common/shells.nix
-            ./modules/common/users.nix
-            # ./modules/desktop/gnome.nix
-          ];
-        };
-
-        ct-home = nixpkgs.lib.nixosSystem {
+        ct-home = mkHost {
           system = "aarch64-linux";
-          modules = [
-            ./hosts/ec2/ct-home/configuration.nix
-            ./modules/common/editors.nix
-            ./modules/common/nix.nix
-            ./modules/common/shells.nix
-            ./modules/common/users.nix
-          ];
+          modules = [ ./hosts/ct-home ];
         };
 
-        vm1 = nixpkgs.lib.nixosSystem {
+        hostpc = mkHost {
           system = "x86_64-linux";
-          modules = [
-            # ./hosts/vm1/configuration.nix
-            ./modules/common/editors.nix
-            # ./modules/common/nix.nix
-            # ./modules/common/users.nix
-          ];
+          modules = [ ./hosts/hostpc ];
         };
+
+        vm1 = mkHost {
+          system = "x86_64-linux";
+          modules = [ ./hosts/vm1 ];
+        };
+
+        # work-ct = mkHost {
+        #   system = "x86_64-linux";
+        #   modules = [ ./hosts/work-ct ];
+        # };
       };
     };
 }
