@@ -56,6 +56,17 @@
           ];
         };
 
+        ct-home = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          modules = [
+            ./hosts/ec2/ct-home/configuration.nix
+            ./modules/common/editors.nix
+            ./modules/common/nix.nix
+            ./modules/common/shells.nix
+            ./modules/common/users.nix
+          ];
+        };
+
         vm1 = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
