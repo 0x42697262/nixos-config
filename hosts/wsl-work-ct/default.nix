@@ -1,7 +1,7 @@
 # wsl-work-ct -- work NixOS-WSL instance.
 { pkgs, ... }: {
   myProfiles.interactive.enable = true;
-
+  myProfiles.zram.enable = false; 
   networking.hostName = "wsl-work-ct";
 
   wsl.enable = true;
