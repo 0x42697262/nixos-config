@@ -5,6 +5,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
     flake-utils.url = "github:numtide/flake-utils";
+
+    ctSecrets = {
+      url = "path:/etc/nixos/secrets";
+      flake = false;
+    };
   };
 
   outputs = { self, nixpkgs, nixos-wsl, flake-utils, ... }@inputs:
