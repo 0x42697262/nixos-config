@@ -11,7 +11,7 @@
   # (ec2.efi = false;) for older x86_64 instance types.
   ec2.efi = lib.mkDefault true;
 
-  # EC2 boxes are headless servers, so the interactive profile stays off (it
-  # already defaults off). Add config shared by ALL our instances below --
-  # monitoring agents, SSH policy, base firewall rules, etc.
+  programs.git.enable = true;
+  myProfiles.shell.enable = true;
+  myProfiles.editors.enable = true;
 }
