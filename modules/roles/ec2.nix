@@ -11,7 +11,5 @@
   # (ec2.efi = false;) for older x86_64 instance types.
   ec2.efi = lib.mkDefault true;
 
-  programs.git.enable = true;
-  myProfiles.shell.enable = true;
-  myProfiles.editors.enable = true;
+  myProfiles.server.enable = true;
 }
