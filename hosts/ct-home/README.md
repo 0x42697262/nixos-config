@@ -105,5 +105,15 @@ For Exit Node:
 ```
 
 $ tailscale up --login-server https://<domain> --authkey <KEY> --advertise-exit-node
+$ headscale nodes list-routes
+$ headscale nodes approve-routes -i <CT_HOME_NODE_ID> -r "0.0.0.0/0,::/0"
+
+```
+
+Then client runs:
+
+```
+
+$ tailscale set --exit-node=100.64.0.2 --exit-node-allow-lan-access
 
 ```
