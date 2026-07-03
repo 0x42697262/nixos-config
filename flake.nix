@@ -5,6 +5,10 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
     flake-utils.url = "github:numtide/flake-utils";
+    tanka-maze = {
+      url = "github:0x42697262/tanka-maze/beta";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     ctSecrets = {
       url = "path:/etc/nixos/secrets";
