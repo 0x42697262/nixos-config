@@ -10,6 +10,7 @@ in
 {
   imports = [
     ../../modules/roles/ec2.nix
+    inputs.tanka-maze.nixosModules.default
   ];
 
   services.tailscale = {
@@ -37,7 +38,29 @@ in
 
   systemd.services.headscale.serviceConfig.AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
 
-  networking.firewall.allowedTCPPorts = [ 443 ];
+  services.tanka-maze = {
+    enable = true;
+    host = "127.0.0.1";
+    port = 8081;
+    trustProxy = true;
+    allowedOrigins = [ "https://${domain}:8080" ];
+  };
+
+  services.caddy = {
+    enable = true;
+    globalConfig = ''
+      https_port 8080
+    '';
+    virtualHosts.${domain}.extraConfig = ''
+      encode zstd gzip
+      reverse_proxy 127.0.0.1:8081 {
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+      }
+    '';
+  };
+
+  networking.firewall.allowedTCPPorts = [ 443 80 8080 ];
 
   # This should match the NixOS release first installed and generally should
   # not change on upgrade.

@@ -104,7 +104,8 @@
         "ctSecrets": "ctSecrets",
         "flake-utils": "flake-utils",
         "nixos-wsl": "nixos-wsl",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_2",
+        "tanka-maze": "tanka-maze"
       }
     },
     "systems": {
@@ -119,6 +120,27 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "tanka-maze": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783087093,
+        "narHash": "sha256-FdQAVuUgPNo14ZmYmjc+8W72g8NfZxKpgsTHoO3PDMo=",
+        "owner": "0x42697262",
+        "repo": "tanka-maze",
+        "rev": "d5cd55776b017f992a068c5609fbecca58d0dbf7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "0x42697262",
+        "ref": "beta",
+        "repo": "tanka-maze",
         "type": "github"
       }
     }
