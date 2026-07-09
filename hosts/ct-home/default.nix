@@ -35,12 +35,9 @@ in
     };
   };
 
-  systemd.services.headscale.serviceConfig.AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
-
   myProfiles.gitlab = {
     enable = true;
     host = "${gitSubdomain}.${domain}";
-    port = 6000;
     secretsDir = "/etc/nixos/secrets/gitlab";
   };
 
@@ -49,21 +46,18 @@ in
     host = "127.0.0.1";
     port = 8000;
     trustProxy = true;
-    allowedOrigins = [ "https://${tankSubdomain}.${domain}:443" ];
+    allowedOrigins = [ "https://${tankSubdomain}.${domain}" ];
   };
 
   services.caddy = {
     enable = true;
-    globalConfig = ''
-      https_port 443
-    '';
-    virtualHosts.${headscaleSubdomain}.${domain}.extraConfig = ''
+    virtualHosts."${headscaleSubdomain}.${domain}".extraConfig = ''
       reverse_proxy 127.0.0.1:7000
     '';
-    virtualHosts.${gitSubdomain}.${domain}.extraConfig = ''
+    virtualHosts."${gitSubdomain}.${domain}".extraConfig = ''
       reverse_proxy unix//run/gitlab/gitlab-workhorse.socket
     '';
-    virtualHosts.${tankSubdomain}.${domain}.extraConfig = ''
+    virtualHosts."${tankSubdomain}.${domain}".extraConfig = ''
       encode zstd gzip
       reverse_proxy 127.0.0.1:8000 {
         header_up X-Forwarded-For {remote_host}
@@ -74,7 +68,7 @@ in
 
   users.users.caddy.extraGroups = [ "gitlab" ];
 
-  networking.firewall.allowedTCPPorts = [ 443 80 6000 7000 8000 ];
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   # This should match the NixOS release first installed and generally should
   # not change on upgrade.
