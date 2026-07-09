@@ -6,6 +6,9 @@
 let
   # /etc/nixos/ct-secrets/domain on the box -- NOT in git. See README.
   domain = lib.fileContents (inputs.ctSecrets + "/domain");
+  gitSubdomain = lib.fileContents (inputs.ctSecrets + "/git_subdomain");
+  headscaleSubdomain = lib.fileContents (inputs.ctSecrets + "/headscale_subdomain");
+  tankSubdomain = lib.fileContents (inputs.ctSecrets + "/tank_subdomain");
 in
 {
   imports = [
@@ -20,13 +23,10 @@ in
 
   services.headscale = {
     enable = true;
-    address = "0.0.0.0";
-    port = 443;
+    address = "127.0.0.1";
+    port = 7000;
     settings = {
-      server_url = "https://${domain}";
-
-      tls_letsencrypt_hostname = domain;
-      tls_letsencrypt_challenge_type = "TLS-ALPN-01";
+      server_url = "https://${headscaleSubdomain}.${domain}";
 
       dns = {
         magic_dns = false;
@@ -35,32 +35,46 @@ in
     };
   };
 
-
   systemd.services.headscale.serviceConfig.AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
+
+  myProfiles.gitlab = {
+    enable = true;
+    host = "${gitSubdomain}.${domain}";
+    port = 6000;
+    secretsDir = "/etc/nixos/secrets/gitlab";
+  };
 
   services.tanka-maze = {
     enable = true;
     host = "127.0.0.1";
-    port = 8081;
+    port = 8000;
     trustProxy = true;
-    allowedOrigins = [ "https://${domain}:8080" ];
+    allowedOrigins = [ "https://${tankSubdomain}.${domain}:443" ];
   };
 
   services.caddy = {
     enable = true;
     globalConfig = ''
-      https_port 8080
+      https_port 443
     '';
-    virtualHosts.${domain}.extraConfig = ''
+    virtualHosts.${headscaleSubdomain}.${domain}.extraConfig = ''
+      reverse_proxy 127.0.0.1:7000
+    '';
+    virtualHosts.${gitSubdomain}.${domain}.extraConfig = ''
+      reverse_proxy unix//run/gitlab/gitlab-workhorse.socket
+    '';
+    virtualHosts.${tankSubdomain}.${domain}.extraConfig = ''
       encode zstd gzip
-      reverse_proxy 127.0.0.1:8081 {
+      reverse_proxy 127.0.0.1:8000 {
         header_up X-Forwarded-For {remote_host}
         header_up X-Forwarded-Proto {scheme}
       }
     '';
   };
 
-  networking.firewall.allowedTCPPorts = [ 443 80 8080 ];
+  users.users.caddy.extraGroups = [ "gitlab" ];
+
+  networking.firewall.allowedTCPPorts = [ 443 80 6000 7000 8000 ];
 
   # This should match the NixOS release first installed and generally should
   # not change on upgrade.
