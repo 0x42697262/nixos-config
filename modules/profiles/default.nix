@@ -7,6 +7,7 @@
     ./desktop.nix
     ./editors.nix
     ./gaming.nix
+    ./gitlab.nix
     ./interactive.nix
     ./shell.nix
     ./server.nix
