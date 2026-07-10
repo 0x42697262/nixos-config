@@ -26,6 +26,7 @@
 
   services.gitlab-runner = {
     enable = true;
+    settings.concurrent = 4;
     services.default = {
       # Runner *authentication* token (the new GitLab >= 17 workflow). Env file
       # (NOT in git) with the server URL and glrt- token, e.g.:
