@@ -22,7 +22,7 @@ runs; see [Reverse proxy and TLS](#reverse-proxy-and-tls).
 | `enable` | bool | `false` | Whether to run GitLab on the host. |
 | `host` | string | — | Public FQDN GitLab is served on. |
 | `port` | port | `443` | External port GitLab is reached on. Used to build repo/clone URLs and emails, so it must match the port the reverse proxy serves on. |
-| `secretsDir` | string | — | Directory holding GitLab's secret files (see [Secrets](#secrets)). |
+| `secretsDir` | string | — | Directory holding GitLab's secret files (see [Secrets](#secrets)). A plain runtime path (`/etc/nixos/secrets/gitlab`) or one derived from a secrets flake input. |
 
 Minimal configuration:
 

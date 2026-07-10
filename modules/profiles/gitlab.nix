@@ -32,8 +32,6 @@ in
       '';
     };
 
-    # str, not path: a `path` would copy these secrets into the world-readable
-    # nix store. We want plain runtime paths that GitLab reads at activation.
     secretsDir = lib.mkOption {
       type = lib.types.str;
       description = "Directory holding GitLab's secret files (kept out of git).";
