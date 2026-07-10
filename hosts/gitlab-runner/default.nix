@@ -1,6 +1,11 @@
 # gitlab-runner -- NixOS system container (Incus/LXD) on the local workstation.
-# Runs a GitLab Runner with the Docker executor. The container must be launched
-# with nesting enabled so Docker can run inside it:
+#
+# Runs a GitLab Runner with the *shell* executor. CI jobs run directly on this
+# container and wrap their build steps in `nix develop`, so the toolchain comes
+# from each project's own flake (fully reproducible) instead of a Docker image.
+# That means no Docker/nesting is needed for Nix-flake projects like akon-money.
+#
+# Launch (nesting only matters if you later add a docker-executor / Android job):
 #   incus launch images:nixos/unstable gitlab-runner -c security.nesting=true
 { modulesPath, ... }: {
   imports = [
@@ -14,9 +19,9 @@
   # zram can't load its kernel module inside an unprivileged container.
   myProfiles.zram.enable = false;
 
-  # The Docker executor runs each CI job in its own container, so this needs a
-  # working Docker daemon -- which is why the Incus container needs nesting.
-  virtualisation.docker.enable = true;
+  # The runner clones repos over git; the build toolchain itself comes from
+  # `nix develop`, so nothing else needs installing globally.
+  programs.git.enable = true;
 
   services.gitlab-runner = {
     enable = true;
@@ -28,9 +33,10 @@
       # New runner) to get the glrt- token, then write this file on the box.
       registrationConfigFile = "/etc/nixos/gitlab-runner.env";
 
-      executor = "docker";
-      dockerImage = "alpine:latest";
-      # Also pick up jobs that carry no tags.
+      executor = "shell";
+      # Route jobs here with `tags: [nix]` in .gitlab-ci.yml; runUntagged also
+      # lets it pick up jobs that carry no tags.
+      tagList = [ "nix" ];
       runUntagged = true;
     };
   };
