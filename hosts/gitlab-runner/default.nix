@@ -18,6 +18,7 @@
 
   # zram can't load its kernel module inside an unprivileged container.
   myProfiles.zram.enable = false;
+  myProfiles.server.enable = true;
 
   # The runner clones repos over git; the build toolchain itself comes from
   # `nix develop`, so nothing else needs installing globally.
