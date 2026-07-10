@@ -36,6 +36,7 @@
       authenticationTokenConfigFile = "/etc/nixos/gitlab-runner.env";
 
       executor = "shell";
+      requestConcurrency = 4;
     };
   };
 
