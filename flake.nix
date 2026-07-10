@@ -66,6 +66,11 @@
           modules = [ ./hosts/vm1 ];
         };
 
+        gitlab-runner = mkHost {
+          system = "x86_64-linux";
+          modules = [ ./hosts/gitlab-runner ];
+        };
+
         # work-ct = mkHost {
         #   system = "x86_64-linux";
         #   modules = [ ./hosts/work-ct ];
