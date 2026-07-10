@@ -82,6 +82,7 @@ Or in `fish`:
 
 ```fish
 for f in secret db otp active_record_primary_key active_record_deterministic_key active_record_salt; openssl rand -hex 32 > $f; end
+openssl genrsa 2048 > "jws"
 ```
 
 Notes:
