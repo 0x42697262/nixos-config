@@ -38,25 +38,64 @@ myProfiles.gitlab = {
 
 GitLab requires a number of secrets that must not be committed to git. The
 directory referenced by `secretsDir` lives on the host (not in this repository)
-and must contain the following files:
+and must contain the files below, one secret per file, no trailing newline
+needed.
 
-| File | Contents |
-| --- | --- |
-| `root_password` | Initial `root` account password |
-| `db_password` | PostgreSQL password for the GitLab role |
-| `secret` | Rails `secret_key_base` |
-| `otp` | OTP secret |
-| `db` | DB encryption secret |
-| `jws` | JWS signing key |
-| `active_record_primary_key` | Active Record encryption primary key |
-| `active_record_deterministic_key` | Active Record deterministic key |
-| `active_record_salt` | Active Record key-derivation salt |
+Most are **random 32-byte keys**. Two are not: `jws` must be an RSA private key,
+and `root_password` is a password chosen by the operator.
 
-Random values can be generated with `openssl rand -hex 32`, for example:
+| File | Purpose | How to generate |
+| --- | --- | --- |
+| `secret` | Encrypts CI/CD variables and other secrets in the DB (`secret_key_base`) | `openssl rand -hex 32` |
+| `db` | Encrypts sensitive columns in the DB (`db_key_base`) | `openssl rand -hex 32` |
+| `otp` | Encrypts users' 2FA / OTP secrets | `openssl rand -hex 32` |
+| `active_record_primary_key` | Active Record encryption key | `openssl rand -hex 32` |
+| `active_record_deterministic_key` | Active Record deterministic encryption key — **must differ** from the primary key | `openssl rand -hex 32` |
+| `active_record_salt` | Active Record encryption key-derivation salt | `openssl rand -hex 32` |
+| `jws` | RSA key that signs session / OIDC tokens — **not** a random string | `openssl genrsa 2048` |
+| `db_password` | GitLab's PostgreSQL user password (internal, never typed by a human) | `openssl rand -hex 32` |
+| `root_password` | Initial password for the `root` web account (first install only) | pick one, or `openssl rand -base64 24` |
+
+The whole set can be generated in one go — run once on the host, as root:
 
 ```sh
-openssl rand -hex 32 > secret
+d=/etc/nixos/secrets/gitlab          # match secretsDir
+install -d -m 0700 "$d"
+
+# Random 32-byte keys. Separate calls, so the two Active Record keys differ.
+for f in secret db otp \
+         active_record_primary_key active_record_deterministic_key \
+         active_record_salt db_password; do
+  openssl rand -hex 32 > "$d/$f"
+done
+
+# jws is an RSA private key, not a random string.
+openssl genrsa 2048 > "$d/jws"
+
+# Initial root login password — keep a copy; it is set only on first install.
+openssl rand -base64 24 > "$d/root_password"
+
+chmod 600 "$d"/*
 ```
+
+Or in `fish`:
+
+```fish
+for f in secret db otp active_record_primary_key active_record_deterministic_key active_record_salt; openssl rand -hex 32 > $f; end
+```
+
+Notes:
+
+- **Generate the keys once and keep them.** `secret`, `db`, `otp`, the three
+  `active_record_*` keys, and `jws` are permanent — changing or losing one makes
+  the data it protects unreadable (stored CI/CD variables, users' 2FA, etc.).
+- `active_record_primary_key` and `active_record_deterministic_key` must not be
+  identical; the module rejects that. Separate `openssl rand` calls guarantee it.
+- `root_password` takes effect only on a fresh install. Changing the file later
+  has no effect — reset the password through the GitLab rails console instead.
+- When `secretsDir` is derived from a flake input (e.g. `"${inputs.ctSecrets}/gitlab"`),
+  GitLab reads the copies in the Nix store, so those files end up world-readable
+  there regardless of the on-disk permissions above.
 
 ### Reverse proxy and TLS
 
