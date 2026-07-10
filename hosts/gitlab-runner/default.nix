@@ -27,12 +27,13 @@
   services.gitlab-runner = {
     enable = true;
     services.default = {
-      # Env file (NOT in git) with the server URL and runner token, e.g.:
+      # Runner *authentication* token (the new GitLab >= 17 workflow). Env file
+      # (NOT in git) with the server URL and glrt- token, e.g.:
       #   CI_SERVER_URL=https://seggs.wineff.net
       #   CI_SERVER_TOKEN=glrt-xxxxxxxxxxxxxxxxxxxx
       # Create a runner in GitLab (Admin/Group/Project -> CI/CD -> Runners ->
       # New runner) to get the glrt- token, then write this file on the box.
-      registrationConfigFile = "/etc/nixos/gitlab-runner.env";
+      authenticationTokenConfigFile = "/etc/nixos/gitlab-runner.env";
 
       executor = "shell";
     };
