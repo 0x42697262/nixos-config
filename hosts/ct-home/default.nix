@@ -38,7 +38,7 @@ in
   myProfiles.gitlab = {
     enable = true;
     host = "${gitSubdomain}.${domain}";
-    secretsDir = "/etc/nixos/secrets/gitlab";
+    secretsDir = "${inputs.ctSecrets}/gitlab";
   };
 
   services.tanka-maze = {
