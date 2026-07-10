@@ -13,6 +13,12 @@
   # two kernels, ~178 MiB) is guaranteed to fit; higher values overflow /boot on
   # a kernel bump. Runtime rollback still works via `nixos-rebuild --rollback`.
   boot.loader.grub.configurationLimit = 2;
+  swapDevices = [
+    {
+      device = "/var/swapfile";
+      size = 4096;
+    }
+  ];
 
   # Most modern (Nitro / Graviton) instances boot via UEFI. Override per host
   # (ec2.efi = false;) for older x86_64 instance types.
