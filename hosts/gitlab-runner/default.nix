@@ -35,10 +35,6 @@
       registrationConfigFile = "/etc/nixos/gitlab-runner.env";
 
       executor = "shell";
-      # Route jobs here with `tags: [nix]` in .gitlab-ci.yml; runUntagged also
-      # lets it pick up jobs that carry no tags.
-      tagList = [ "nix" ];
-      runUntagged = true;
     };
   };
 
