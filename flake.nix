@@ -56,6 +56,11 @@
           modules = [ ./hosts/ct-home ];
         };
 
+        ec2-game-server = mkHost {
+          system = "aarch64-linux";
+          modules = [ ./hosts/ec2-game-server ];
+        };
+
         hostpc = mkHost {
           system = "x86_64-linux";
           modules = [ ./hosts/hostpc ];
