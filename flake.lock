@@ -130,16 +130,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1783702599,
-        "narHash": "sha256-+/q6xKBZh4ARgLT7cngOMv5V5TAMcMnKsJY33xlmlIg=",
+        "lastModified": 1784791795,
+        "narHash": "sha256-nTCapvnjrq9hOjBcwLhRi3juNOeLy0txXH+ccre1oYI=",
         "owner": "0x42697262",
         "repo": "tanka-maze",
-        "rev": "32a7f5d43e743689d628da9a9db5b1a74af132d7",
+        "rev": "8b9cc4ef52a8bc479b152dcacea4e0785b0e0911",
         "type": "github"
       },
       "original": {
         "owner": "0x42697262",
-        "ref": "beta",
+        "ref": "main",
         "repo": "tanka-maze",
         "type": "github"
       }

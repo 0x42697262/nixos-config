@@ -6,7 +6,7 @@
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
     flake-utils.url = "github:numtide/flake-utils";
     tanka-maze = {
-      url = "github:0x42697262/tanka-maze/beta";
+      url = "github:0x42697262/tanka-maze/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
