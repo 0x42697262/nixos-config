@@ -21,6 +21,24 @@
       linkConfig.RequiredForOnline = "routable";
     };
   };
+  users.users.chicken = {
+    isNormalUser = true;
+    description = "chicken";
+    extraGroups = [ "wheel" ];
+    hashedPassword = null;
+  };
+  security.sudo.extraRules = [
+    {
+      users = [ "chicken" ];
+      commands = [
+        {
+          command = "ALL";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
+
   myProfiles.zram.enable = false;
   myProfiles.interactive.enable = true;
 
