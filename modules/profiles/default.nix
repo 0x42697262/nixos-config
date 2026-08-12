@@ -9,6 +9,7 @@
     ./gaming.nix
     ./gitlab.nix
     ./interactive.nix
+    ./security.nix
     ./shell.nix
     ./server.nix
   ];
