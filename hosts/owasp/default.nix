@@ -1,4 +1,4 @@
-{ modulesPath, ... }: {
+{ ... }: {
   imports = [
     ../../modules/roles/incus.nix
   ];
@@ -12,6 +12,7 @@
     gui.enable = true;
   };
   myRoles.incus.gui.enable = true;
+  myProfiles.browsers.enable = true;
 
   system.stateVersion = "26.11";
 }
