@@ -9,7 +9,9 @@
     web.enable = true;
     reversing.enable = true;
     crypto.enable = true;
+    gui.enable = true;
   };
+  myRoles.incus.gui.enable = true;
 
   system.stateVersion = "26.11";
 }

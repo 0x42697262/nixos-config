@@ -21,9 +21,15 @@ make no sense inside a container:
   required for `network-online.target`.
 - `myProfiles.zram` off (the host handles swap), `myProfiles.interactive` on.
 
+It also defines the single unprivileged account these containers are driven
+through: `chicken`, uid pinned to 1000, in `wheel` / `video` / `audio`, with no
+password and a NOPASSWD sudo rule scoped to it alone. No password means the
+account is locked for interactive login — `incus exec` works, `incus console`
+does not.
+
 ## Using it in a host
 
-The role carries no options, so a host only supplies its identity:
+A host supplies its identity and, optionally, the one flag the role declares:
 
 ```nix
 { ... }: {
@@ -34,6 +40,25 @@ The role carries no options, so a host only supplies its identity:
   system.stateVersion = "26.11";
 }
 ```
+
+## Graphical apps
+
+`myRoles.incus.gui.enable` adds the guest half of running GUI apps against the
+host's compositor: a runtime directory, symlinks from the canonical socket names
+into the passed-in ones, `hardware.graphics`, fonts, and the session variables
+GUI toolkits read. It is off by default, since Mesa and fonts are dead weight in
+a container that only ever gets a terminal.
+
+The host half cannot live here — passing the GPU in and bind-mounting the
+Wayland, X11, and PipeWire sockets is Incus instance configuration. Apply it with
+`scripts/apply-nixos-gui-profile.sh` from the incus-profiles repo (v2 branch),
+which reads the live session rather than hardcoding its paths.
+
+The two halves meet at fixed names under `/mnt/.sockets` — `wayland`,
+`pipewire`, `x11`, `pulse-native`. The host's own numbering never reaches the
+guest, so a compositor that comes up on `wayland-1` needs no change on this side.
+`gui.enable` pairs with `myProfiles.security.gui.enable`, which supplies the
+graphical tools themselves.
 
 Then register it in `flake.nix` like any other host:
 
