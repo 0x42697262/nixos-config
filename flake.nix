@@ -16,24 +16,43 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixos-wsl, flake-utils, ... }@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixos-wsl,
+      flake-utils,
+      ...
+    }@inputs:
     let
-      mkHost = { system, modules ? [ ] }:
+      mkHost =
+        {
+          system,
+          modules ? [ ],
+        }:
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = { inherit self inputs; };
-          modules = [ ./modules/common ./modules/profiles ] ++ modules;
+          modules = [
+            ./modules/common
+            ./modules/profiles
+          ]
+          ++ modules;
         };
     in
-    flake-utils.lib.eachDefaultSystem
-      (system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        in
-        { formatter = pkgs.nixpkgs-fmt; }) // {
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+      in
+      {
+        formatter = pkgs.nixpkgs-fmt;
+      }
+    )
+    // {
       nixosConfigurations = {
         wsl2-tgt = mkHost {
           system = "x86_64-linux";
@@ -71,9 +90,16 @@
           modules = [ ./hosts/vm1 ];
         };
 
+        # Nixos
+
         gitlab-runner = mkHost {
           system = "x86_64-linux";
           modules = [ ./hosts/gitlab-runner ];
+        };
+
+        owasp = mkHost {
+          system = "x86_64-linux";
+          modules = [ ./hosts/owasp ];
         };
 
         # work-ct = mkHost {
