@@ -70,6 +70,8 @@
           ];
         };
 
+        # AWS EC2
+
         ct-home = mkHost {
           system = "aarch64-linux";
           modules = [ ./hosts/ct-home ];
@@ -78,6 +80,11 @@
         ec2-game-server = mkHost {
           system = "aarch64-linux";
           modules = [ ./hosts/ec2-game-server ];
+        };
+
+        ec2-vpn = mkHost {
+          system = "aarch64-linux";
+          modules = [ ./hosts/ec2-vpn ];
         };
 
         hostpc = mkHost {
@@ -90,7 +97,7 @@
           modules = [ ./hosts/vm1 ];
         };
 
-        # Nixos
+        # Incus
 
         gitlab-runner = mkHost {
           system = "x86_64-linux";
