@@ -34,7 +34,14 @@ in
 
     secretsDir = lib.mkOption {
       type = lib.types.str;
-      description = "Directory holding GitLab's secret files (kept out of git).";
+      description = ''
+        Directory holding GitLab's secret files. Must be a
+        literal path that exists on the running machine, written as a string.
+
+        Do NOT build it by interpolating a nix path or flake input: that copies
+        every secret into the world-readable nix store on every machine that
+        evaluates this config.
+      '';
       example = "/etc/nixos/secrets/gitlab";
     };
   };

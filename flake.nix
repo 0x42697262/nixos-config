@@ -9,11 +9,6 @@
       url = "github:0x42697262/tanka-maze/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    ctSecrets = {
-      url = "path:/etc/nixos/secrets";
-      flake = false;
-    };
   };
 
   outputs =

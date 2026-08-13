@@ -1,7 +1,8 @@
-{ inputs, lib, ... }:
+{ config, ... }:
 let
-  domain = lib.fileContents (inputs.ctSecrets + "/domain");
-  headscaleSubdomain = lib.fileContents (inputs.ctSecrets + "/headscale_subdomain");
+  # Placeholders unless /etc/nixos/domains.nix is present and the rebuild ran
+  # with --impure. See modules/common/site.nix.
+  headscaleHost = "${config.mySite.subdomains.headscale}.${config.mySite.domain}";
 in
 {
   imports = [
@@ -18,7 +19,7 @@ in
     address = "127.0.0.1";
     port = 7000;
     settings = {
-      server_url = "https://${headscaleSubdomain}.${domain}";
+      server_url = "https://${headscaleHost}";
 
       dns = {
         magic_dns = false;
@@ -32,12 +33,10 @@ in
 
   services.caddy = {
     enable = true;
-    virtualHosts."${headscaleSubdomain}.${domain}".extraConfig = ''
+    virtualHosts."${headscaleHost}".extraConfig = ''
       reverse_proxy 127.0.0.1:7000
     '';
   };
-
-  users.users.caddy.extraGroups = [ "gitlab" ];
 
   networking.firewall.allowedTCPPorts = [
     80

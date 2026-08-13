@@ -31,7 +31,53 @@ allows inbound TCP 22. SSH in with your launch key:
 ssh root@<instance-public-ip>
 ```
 
-## 1. First rebuild (flakes not enabled yet)
+## 1. Put the real names and secrets on the box
+
+Nothing host-specific and private lives in this repo. Two things have to exist
+on the instance before a rebuild produces something deployable.
+
+**Domains.** The apex domain and subdomains are needed at *evaluation* time (they
+build Caddy vhost names and headscale's `server_url`), so they can't come from
+sops/agenix, which only decrypt at activation. They live here instead:
+
+```sh
+cat > /etc/nixos/domains.nix <<'EOF'
+{
+  mySite.domain = "example.com";
+  mySite.subdomains = {
+    headscale = "vpn";
+    git = "git";
+    tank = "tank";
+  };
+}
+EOF
+```
+
+This file is read **only** in impure eval, which is why every rebuild below
+passes `--impure`. Leave the flag off and the build still succeeds, against the
+placeholders in `modules/common/site.nix` — you'll get `vpn.example.invalid`,
+a failing ACME challenge, and a warning in the rebuild output saying so. That
+is the trade for being able to `nix eval` every host on a laptop that holds
+none of this.
+
+**GitLab secrets** (`ct-home` only). `myProfiles.gitlab.secretsDir` points at a
+plain runtime path, so these are read by the service on the box and never enter
+the nix store:
+
+```sh
+mkdir -p /etc/nixos/secrets/gitlab
+cd /etc/nixos/secrets/gitlab
+for f in root_password db_password secret otp db jws \
+         active_record_primary_key active_record_deterministic_key active_record_salt; do
+  openssl rand -hex 32 > $f
+done
+chmod 600 *
+```
+
+Neither path is in git, so back them up somewhere — losing the GitLab ones
+means losing access to encrypted columns in the database.
+
+## 2. First rebuild (flakes not enabled yet)
 
 A stock AMI doesn't have flakes on. This repo's `modules/common/nix.nix` turns
 them on permanently, but the *first* rebuild needs them enabled manually.
@@ -41,22 +87,23 @@ them on permanently, but the *first* rebuild needs them enabled manually.
 > the `NIX_CONFIG` env var (works in any shell) or `--option`:
 
 ```sh
-env NIX_CONFIG="experimental-features = nix-command flakes" nixos-rebuild switch --flake "github:0x42697262/nixos-config#ct-home"
+env NIX_CONFIG="experimental-features = nix-command flakes" nixos-rebuild switch --flake "github:0x42697262/nixos-config#ct-home" --impure
 ```
 
 `#ct-home` selects the flake output. Building straight from `github:` needs no
 clone and uses your last pushed commit. (Equivalent: append
 `--option experimental-features "nix-command flakes"` instead of the env var.)
 
-## 2. Later rebuilds
+## 3. Later rebuilds
 
-After the first switch, flakes are permanent, so drop the env var entirely:
+After the first switch, flakes are permanent, so drop the env var entirely —
+but keep `--impure`, or you'll deploy the placeholder domains:
 
 ```sh
-nixos-rebuild switch --flake "github:0x42697262/nixos-config#ct-home"
+nixos-rebuild switch --flake "github:0x42697262/nixos-config#ct-home" --impure
 ```
 
-## 3. Editing on the box (optional)
+## 4. Editing on the box (optional)
 
 To iterate locally instead of pushing every change, clone it (the AMI may not
 have `git`, so use `nix-shell`):
@@ -64,14 +111,14 @@ have `git`, so use `nix-shell`):
 ```sh
 nix-shell -p git --run "git clone https://github.com/0x42697262/nixos-config /etc/nixos/nixos-config"
 
-nixos-rebuild switch --flake /etc/nixos/nixos-config#ct-home
+nixos-rebuild switch --flake /etc/nixos/nixos-config#ct-home --impure
 ```
 
 Pull newer nixpkgs later:
 
 ```sh
 nix flake update /etc/nixos/nixos-config
-nixos-rebuild switch --flake /etc/nixos/nixos-config#ct-home
+nixos-rebuild switch --flake /etc/nixos/nixos-config#ct-home --impure
 ```
 
 > **Flake + git gotcha:** a flake only sees files that git *tracks*. After

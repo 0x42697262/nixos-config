@@ -7,6 +7,7 @@
     ./nix.nix     # flakes + allowUnfree
     ./locale.nix  # timezone + locale
     ./maintenance.nix  # garbage collection, store optimise, tarball TTL
+    ./site.nix         # apex domain + subdomains (placeholders unless --impure)
     ./zram.nix         # compressed RAM swap
   ];
 }
