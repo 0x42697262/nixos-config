@@ -2,13 +2,17 @@
 # A full workstation you sit at. Composes the smaller shell + editors profiles
 # and adds the heavier day-to-day CLI tooling on top. Headless boxes that only
 # want shell/editors should enable those flags directly instead of this one.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.myProfiles.interactive;
 in
 {
-  options.myProfiles.interactive.enable =
-    lib.mkEnableOption "full interactive workstation (shell + editors + extra CLI tooling)";
+  options.myProfiles.interactive.enable = lib.mkEnableOption "full interactive workstation (shell + editors + extra CLI tooling)";
 
   config = lib.mkIf cfg.enable {
     # Pull in the finer-grained profiles.
@@ -29,6 +33,7 @@ in
       ripgrep
       unzip
       wget
+      zellij
     ];
   };
 }
