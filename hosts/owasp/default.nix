@@ -4,6 +4,7 @@
   ];
 
   networking.hostName = "owasp";
+
   programs.openvpn3.enable = true;
 
   myProfiles.security = {
@@ -19,6 +20,8 @@
     enable = true;
     users = [ "chicken" ];
   };
+
+  environment.etc.hosts.mode = "0644";
 
   networking.firewall.allowedTCPPorts = [ 9876 ];
 
