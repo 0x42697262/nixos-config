@@ -11,21 +11,21 @@
 # names. Note that cloud-init is not enabled on NixOS containers, so the
 # vendor-data blocks in the older Arch-oriented Incus profiles do nothing here --
 # everything they attempted has to live in this role instead.
-{ config, lib, pkgs, modulesPath, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  modulesPath,
+  ...
+}:
 let
   cfg = config.myRoles.incus;
 
   user = "chicken";
-  # Pinned rather than left to useradd: the host's Incus profile hardcodes this
-  # number in its gpu device and in the /run/user/<uid> paths it sources sockets
-  # from, so an allocated-by-chance uid would not line up.
   uid = 1000;
+  group = "users";
   runtimeDir = "/run/user/${toString uid}";
 
-  # Where the host's socket devices land. The names inside are the contract with
-  # the Incus profile and are deliberately fixed -- the host may call its socket
-  # wayland-0 or wayland-1 and this side never has to know, because the device
-  # `path:` renames it on the way in.
   socketDir = "/mnt/.sockets";
 in
 {
@@ -62,8 +62,12 @@ in
       users.users.${user} = {
         isNormalUser = true;
         description = user;
-        inherit uid;
-        extraGroups = [ "wheel" "video" "audio" ];
+        inherit uid group;
+        extraGroups = [
+          "wheel"
+          "video"
+          "audio"
+        ];
         hashedPassword = null;
       };
 
@@ -95,7 +99,7 @@ in
       # is the canonical name clients expect inside the container, right is the
       # normalized name the Incus profile mounts to.
       systemd.tmpfiles.rules = [
-        "d ${runtimeDir} 0700 ${user} ${user} -"
+        "d ${runtimeDir} 0700 ${user} ${group} -"
         "d /tmp/.X11-unix 1777 root root -"
         "L+ ${runtimeDir}/wayland-0 - - - - ${socketDir}/wayland"
         "L+ ${runtimeDir}/pipewire-0 - - - - ${socketDir}/pipewire"
