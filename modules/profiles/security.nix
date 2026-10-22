@@ -7,11 +7,17 @@
 # Graphical tools sit behind `gui.enable` instead of their discipline, because a
 # headless container (see ../roles/incus.nix) can use everything else but has
 # nowhere to draw Burp, ZAP, or Ghidra.
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.myProfiles.security;
 
-  anyDiscipline = cfg.web.enable
+  anyDiscipline =
+    cfg.web.enable
     || cfg.reversing.enable
     || cfg.binexp.enable
     || cfg.forensics.enable
@@ -19,35 +25,37 @@ let
 
   # One interpreter for all disciplines. Separate withPackages environments
   # would each put a `python3` on PATH and shadow one another.
-  pythonEnv = pkgs.python3.withPackages (ps:
+  pythonEnv = pkgs.python3.withPackages (
+    ps:
     with ps;
     [ requests ]
-    ++ lib.optionals cfg.web.enable [ beautifulsoup4 pyjwt ]
+    ++ lib.optionals cfg.web.enable [
+      beautifulsoup4
+      pyjwt
+    ]
     ++ lib.optionals cfg.binexp.enable [ pwntools ]
-    ++ lib.optionals cfg.crypto.enable [ pycryptodome gmpy2 sympy ]);
+    ++ lib.optionals cfg.crypto.enable [
+      pycryptodome
+      gmpy2
+      sympy
+    ]
+  );
 in
 {
   options.myProfiles.security = {
-    enable = lib.mkEnableOption
-      "shared security tooling (recon, scripting, exploit database)";
+    enable = lib.mkEnableOption "shared security tooling (recon, scripting, exploit database)";
 
-    web.enable = lib.mkEnableOption
-      "web application pentesting -- proxies, fuzzers, scanners (Juice Shop)";
+    web.enable = lib.mkEnableOption "web application pentesting -- proxies, fuzzers, scanners (Juice Shop)";
 
-    reversing.enable = lib.mkEnableOption
-      "reverse engineering -- disassemblers and debuggers";
+    reversing.enable = lib.mkEnableOption "reverse engineering -- disassemblers and debuggers";
 
-    binexp.enable = lib.mkEnableOption
-      "binary exploitation -- pwntools and ROP tooling";
+    binexp.enable = lib.mkEnableOption "binary exploitation -- pwntools and ROP tooling";
 
-    forensics.enable = lib.mkEnableOption
-      "forensics -- carving, memory and packet analysis, steganography";
+    forensics.enable = lib.mkEnableOption "forensics -- carving, memory and packet analysis, steganography";
 
-    crypto.enable = lib.mkEnableOption
-      "cryptography and password cracking";
+    crypto.enable = lib.mkEnableOption "cryptography and password cracking";
 
-    gui.enable = lib.mkEnableOption
-      "graphical security tools -- needs a desktop or X forwarding";
+    gui.enable = lib.mkEnableOption "graphical security tools -- needs a desktop or X forwarding";
   };
 
   config = lib.mkMerge [
@@ -55,7 +63,10 @@ in
     (lib.mkIf anyDiscipline { myProfiles.security.enable = true; })
 
     (lib.mkIf cfg.enable {
-      environment.systemPackages = [ pythonEnv ] ++ (with pkgs; [
+      environment.systemPackages = [
+        pythonEnv
+      ]
+      ++ (with pkgs; [
         # Recon and the network basics every discipline reaches for.
         nmap
         dnsutils
@@ -63,6 +74,8 @@ in
         openssl
         socat
         netcat-gnu
+        tshark
+        lftp
 
         # Poking at services and reading what comes back.
         curl
@@ -140,7 +153,6 @@ in
         # Memory and packets.
         volatility3
         tcpdump
-        wireshark-cli # tshark
 
         # Metadata and steganography.
         exiftool
