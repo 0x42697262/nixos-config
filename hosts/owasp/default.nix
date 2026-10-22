@@ -4,6 +4,7 @@
   ];
 
   networking.hostName = "owasp";
+  programs.openvpn3.enable = true;
 
   myProfiles.security = {
     web.enable = true;
