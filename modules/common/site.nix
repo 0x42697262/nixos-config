@@ -18,6 +18,7 @@
 #       headscale = "vpn";
 #       git = "git";
 #       tank = "game";
+#       boxhead = "boxhead";
 #     };
 #   }
 #
@@ -72,6 +73,12 @@ in
         type = lib.types.str;
         default = "tank";
         description = "Subdomain tanka-maze is served on.";
+      };
+
+      boxhead = lib.mkOption {
+        type = lib.types.str;
+        default = "boxhead";
+        description = "Subdomain Boxhead 2Play is served on.";
       };
     };
   };
