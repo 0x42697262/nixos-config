@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792859313,
-        "narHash": "sha256-ne/UAy/qrTpZ0wk60MEQLgkBW+QCQ0UFipuq6wZGSMg=",
+        "lastModified": 1792950699,
+        "narHash": "sha256-fUqwKFUd+7Gyk+D2VA9HSgLp2qRUKfajh5JAda3bVxY=",
         "owner": "0x42697262",
         "repo": "boxhead2play-multiplayer",
-        "rev": "9d244393a0e2036813b4715ca04486f3eb608cb9",
+        "rev": "08b1107dfda38f8ab8df221482c25f43525447e6",
         "type": "github"
       },
       "original": {
