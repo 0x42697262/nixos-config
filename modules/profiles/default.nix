@@ -13,6 +13,7 @@
     ./memory.nix
     ./network-tuning.nix
     ./nvidia.nix
+    ./power.nix
     ./sched-ext.nix
     ./security.nix
     ./shell.nix
