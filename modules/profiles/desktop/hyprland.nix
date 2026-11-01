@@ -52,6 +52,7 @@ in
         };
 
         services.gnome.gnome-keyring.enable = true;
+        services.gnome.gcr-ssh-agent.enable = lib.mkIf config.programs.ssh.startAgent false;
         security.polkit.enable = true;
         hardware.i2c.enable = true;
 
