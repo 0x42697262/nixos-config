@@ -15,6 +15,17 @@ let
   # Same expression hardware.nvidia.package defaults to, so both shapes draw the
   # driver from one place.
   driver = config.boot.kernelPackages.nvidiaPackages.${cfg.branch};
+
+  primeOffload =
+    cfg.prime.nvidiaBusId != null && (cfg.prime.intelBusId != null || cfg.prime.amdgpuBusId != null);
+
+  prime-run = pkgs.writeShellScriptBin "prime-run" ''
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export __VK_LAYER_NV_optimus=NVIDIA_only
+    exec "$@"
+  '';
 in
 {
   options.myProfiles.nvidia = {
@@ -38,6 +49,62 @@ in
         mismatched counterpart. `legacy_*` branches are rejected, since they
         exist for cards older than this profile supports.
       '';
+    };
+
+    prime = {
+      intelBusId = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "PCI:0:2:0";
+        description = "Bus ID of the Intel iGPU. Set together with nvidiaBusId for PRIME render offload.";
+      };
+
+      amdgpuBusId = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "PCI:6:0:0";
+        description = "Bus ID of the AMD iGPU. Set together with nvidiaBusId for PRIME render offload.";
+      };
+
+      nvidiaBusId = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "PCI:1:0:0";
+        description = "Bus ID of the NVIDIA dGPU.";
+      };
+    };
+
+    dynamicBoost.enable = lib.mkEnableOption "nvidia-powerd (Dynamic Boost, laptops with Ampere or newer)";
+
+    earlyKms = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Load nvidia, nvidia_modeset, nvidia_uvm and nvidia_drm from the initrd.";
+    };
+
+    moduleParams = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.either lib.types.int lib.types.str);
+      default = { };
+      example = {
+        NVreg_InitializeSystemMemoryAllocations = 0;
+      };
+      description = "Extra parameters for the nvidia kernel module.";
+    };
+
+    cudaPerfBoost = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Let CUDA contexts (NVENC/NVDEC included) push the GPU into its boost
+        clocks. false sets CUDA_DISABLE_PERF_BOOST=1, which lowers idle power
+        while video is decoded or encoded on the GPU.
+      '';
+    };
+
+    patches = lib.mkOption {
+      type = lib.types.listOf (lib.types.either lib.types.path lib.types.package);
+      default = [ ];
+      description = "Patches applied to the open kernel module source.";
     };
   };
 
@@ -85,6 +152,49 @@ in
       # Only consulted when X or a display manager is running; harmless on a
       # headless compute box.
       services.xserver.videoDrivers = [ "nvidia" ];
+
+      hardware.nvidia.package = lib.mkIf (cfg.patches != [ ]) (
+        driver
+        // {
+          open = driver.open.overrideAttrs (old: {
+            patches = (old.patches or [ ]) ++ cfg.patches;
+          });
+        }
+      );
+
+      hardware.nvidia.dynamicBoost.enable = cfg.dynamicBoost.enable;
+
+      boot.initrd.kernelModules = lib.mkIf cfg.earlyKms [
+        "nvidia"
+        "nvidia_modeset"
+        "nvidia_uvm"
+        "nvidia_drm"
+      ];
+
+      boot.extraModprobeConfig = lib.mkIf (cfg.moduleParams != { }) (
+        "options nvidia "
+        + lib.concatStringsSep " " (lib.mapAttrsToList (k: v: "${k}=${toString v}") cfg.moduleParams)
+      );
+
+      environment.sessionVariables.CUDA_DISABLE_PERF_BOOST = lib.mkIf (!cfg.cudaPerfBoost) "1";
+    })
+
+    (lib.mkIf (cfg.enable && !cfg.container.enable && primeOffload) {
+      hardware.nvidia = {
+        prime = {
+          offload.enable = true;
+          offload.enableOffloadCmd = true;
+          nvidiaBusId = cfg.prime.nvidiaBusId;
+          intelBusId = lib.mkIf (cfg.prime.intelBusId != null) cfg.prime.intelBusId;
+          amdgpuBusId = lib.mkIf (cfg.prime.amdgpuBusId != null) cfg.prime.amdgpuBusId;
+        };
+        powerManagement.enable = true;
+        powerManagement.finegrained = true;
+      };
+
+      services.switcherooControl.enable = true;
+
+      environment.systemPackages = [ prime-run ];
     })
 
     (lib.mkIf cfg.container.enable {
