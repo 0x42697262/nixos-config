@@ -3,6 +3,7 @@
   imports = [
     ./hardware.nix
     ./desktop.nix
+    ./apps.nix
   ];
 
   myProfiles.interactive.enable = true;
