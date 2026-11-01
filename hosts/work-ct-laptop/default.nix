@@ -1,6 +1,9 @@
 { pkgs, ... }:
 {
-  imports = [ ./hardware.nix ];
+  imports = [
+    ./hardware.nix
+    ./desktop.nix
+  ];
 
   myProfiles.interactive.enable = true;
 
