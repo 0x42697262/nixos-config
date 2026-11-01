@@ -1,5 +1,6 @@
 { ... }: {
   imports = [
+    ./audio.nix
     ./browsers.nix
     ./desktop.nix
     ./docker.nix
