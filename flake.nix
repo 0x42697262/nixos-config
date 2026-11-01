@@ -13,6 +13,7 @@
       url = "github:0x42697262/boxhead2play-multiplayer/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 
   outputs =
