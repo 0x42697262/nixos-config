@@ -11,6 +11,7 @@
     ./interactive.nix
     ./kernel-tuning.nix
     ./memory.nix
+    ./network-tuning.nix
     ./nvidia.nix
     ./sched-ext.nix
     ./security.nix
