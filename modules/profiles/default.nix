@@ -13,5 +13,6 @@
     ./security.nix
     ./shell.nix
     ./server.nix
+    ./storage.nix
   ];
 }
