@@ -7,6 +7,7 @@
     ./gaming.nix
     ./gitlab.nix
     ./interactive.nix
+    ./memory.nix
     ./nvidia.nix
     ./security.nix
     ./shell.nix
