@@ -8,14 +8,6 @@
     polkitPolicyOwners = [ "chicken" ];
   };
 
-  environment.etc."1password/custom_allowed_browsers" = {
-    text = ''
-      brave
-      .brave-wrapped
-    '';
-    mode = "0755";
-  };
-
   myProfiles.docker = {
     enable = true;
     users = [ "chicken" ];
