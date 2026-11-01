@@ -2,6 +2,7 @@
   imports = [
     ./ananicy.nix
     ./audio.nix
+    ./boot.nix
     ./browsers.nix
     ./desktop.nix
     ./docker.nix
