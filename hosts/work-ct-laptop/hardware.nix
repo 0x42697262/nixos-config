@@ -37,15 +37,5 @@
     ];
   };
 
-  fileSystems."/mnt/new" = {
-    device = "/dev/disk/by-uuid/ff174c2d-e637-4bb8-b71c-868b41f212ca";
-    fsType = "xfs";
-    options = [
-      "noatime"
-      "lazytime"
-      "nofail"
-    ];
-  };
-
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }

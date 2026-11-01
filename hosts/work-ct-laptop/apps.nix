@@ -58,8 +58,6 @@
     };
   };
 
-  systemd.services.incus.unitConfig.RequiresMountsFor = [ "/mnt/new" ];
-
   networking.nftables.enable = true;
   networking.firewall.trustedInterfaces = [ "incusbr0" ];
 
