@@ -1,5 +1,6 @@
 {
   config,
+  options,
   lib,
   pkgs,
   inputs ? { },
@@ -7,23 +8,39 @@
 }:
 let
   cfg = config.myProfiles.cachyos;
+  opt = options.myProfiles.cachyos;
 
-  kernelPatches = "https://raw.githubusercontent.com/CachyOS/kernel-patches/f3770b16d069a1bce8dfa63841042137f8b43434";
+  patchesExample = ''
+    myProfiles.cachyos.nvidia.patches =
+      let
+        base = "https://raw.githubusercontent.com/CachyOS/kernel-patches/f3770b16d069a1bce8dfa63841042137f8b43434/7.3/misc/nvidia";
+      in
+      [
+        (pkgs.fetchurl {
+          url = "''${base}/0001-fix-dsc-correct-RC-parameter-tables-to-match-VESA-DS.patch";
+          hash = "sha256-3LziGhagCKc3EBQiDP8RU62Yk7jQlbICQGYnXUyVO+4=";
+        })
+        (pkgs.fetchurl {
+          url = "''${base}/0002-fix-dp-add-Bigscreen-Beyond-VR-headset-to-WAR-databa.patch";
+          hash = "sha256-cNwTepvW6VrkueKWrMJNPhOhOHhsb13VSdy806MwWQY=";
+        })
+        (pkgs.fetchurl {
+          url = "''${base}/0004-Open-sysfs-config-from-the-userspace-root-on-7.3.patch";
+          hash = "sha256-pruuHakb6tcDDteKFh3t0tyNONSV74evJGc2Qu8dfKk=";
+        })
+      ];
+  '';
 
-  nvidiaPatches = [
-    (pkgs.fetchurl {
-      url = "${kernelPatches}/7.3/misc/nvidia/0001-fix-dsc-correct-RC-parameter-tables-to-match-VESA-DS.patch";
-      hash = "sha256-3LziGhagCKc3EBQiDP8RU62Yk7jQlbICQGYnXUyVO+4=";
-    })
-    (pkgs.fetchurl {
-      url = "${kernelPatches}/7.3/misc/nvidia/0002-fix-dp-add-Bigscreen-Beyond-VR-headset-to-WAR-databa.patch";
-      hash = "sha256-cNwTepvW6VrkueKWrMJNPhOhOHhsb13VSdy806MwWQY=";
-    })
-    (pkgs.fetchurl {
-      url = "${kernelPatches}/7.3/misc/nvidia/0004-Open-sysfs-config-from-the-userspace-root-on-7.3.patch";
-      hash = "sha256-pruuHakb6tcDDteKFh3t0tyNONSV74evJGc2Qu8dfKk=";
-    })
-  ];
+  binaryCacheExample = ''
+    myProfiles.cachyos.kernel.binaryCache = {
+      substituters = [ "https://cache.lantian.pub/lantian" ];
+      trustedPublicKeys = [ "lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ=" ];
+    };
+  '';
+
+  patchesSet = opt.nvidia.patches.isDefined;
+  binaryCacheSet =
+    opt.kernel.binaryCache.substituters.isDefined && opt.kernel.binaryCache.trustedPublicKeys.isDefined;
 
   nvidiaPrime =
     config.myProfiles.nvidia.prime.nvidiaBusId != null
@@ -53,21 +70,32 @@ in
         '';
       };
 
-      binaryCache = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "Use the nix-cachyos-kernel binary cache (cache.lantian.pub).";
+      binaryCache = {
+        substituters = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          example = [ "https://cache.lantian.pub/lantian" ];
+          description = ''
+            Binary caches serving the CachyOS kernel builds. Required when
+            kernel.enable is true; set [ ] to build kernels locally.
+          '';
+        };
+
+        trustedPublicKeys = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          example = [ "lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ=" ];
+          description = "Signing keys of those caches. Required when kernel.enable is true.";
+        };
       };
     };
 
-    nvidiaPatches = lib.mkOption {
-      type = lib.types.bool;
-      default = cfg.kernel.enable;
-      defaultText = lib.literalExpression "config.myProfiles.cachyos.kernel.enable";
+    nvidia.patches = lib.mkOption {
+      type = lib.types.listOf (lib.types.either lib.types.path lib.types.package);
+      example = lib.literalExpression patchesExample;
       description = ''
-        Apply the NVIDIA open module patches linux-cachyos ships with its
-        prebuilt nvidia-open (CachyOS/kernel-patches 7.3/misc/nvidia).
-        They target the 615 driver on 7.3 kernels.
+        Patches for the NVIDIA open kernel module, as linux-cachyos applies
+        to its prebuilt nvidia-open (CachyOS/kernel-patches
+        <kernel>/misc/nvidia). Pin them to the kernel and driver the host
+        boots. Required; set [ ] to apply none.
       '';
     };
 
@@ -81,6 +109,18 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
+        assertions = [
+          {
+            assertion = patchesSet;
+            message = ''
+              myProfiles.cachyos.nvidia.patches is not set. Pin the NVIDIA
+              open module patches for this host's kernel and driver, or set
+              it to [ ]. For linux-cachyos 7.3 with nvidia 615:
+
+              ${patchesExample}'';
+          }
+        ];
+
         myProfiles.zram = {
           enable = lib.mkDefault true;
           memoryPercent = lib.mkDefault 100;
@@ -135,12 +175,21 @@ in
           moduleParams.NVreg_InitializeSystemMemoryAllocations = lib.mkDefault 0;
           cudaPerfBoost = lib.mkDefault false;
           dynamicBoost.enable = lib.mkDefault nvidiaPrime;
-          patches = lib.mkIf cfg.nvidiaPatches nvidiaPatches;
+          patches = lib.mkIf patchesSet cfg.nvidia.patches;
         };
       }
 
       (lib.mkIf cfg.kernel.enable {
         assertions = [
+          {
+            assertion = binaryCacheSet;
+            message = ''
+              myProfiles.cachyos.kernel.binaryCache is not set. Point it at
+              a cache serving the nix-cachyos-kernel builds, or set both
+              lists to [ ] to build kernels locally:
+
+              ${binaryCacheExample}'';
+          }
           {
             assertion = inputs ? nix-cachyos-kernel;
             message = "myProfiles.cachyos.kernel needs the nix-cachyos-kernel flake input.";
@@ -158,9 +207,9 @@ in
           config.myProfiles.kernelTuning.package == "default"
         ) inputs.nix-cachyos-kernel.legacyPackages.${pkgs.stdenv.hostPlatform.system}.${cfg.kernel.variant};
 
-        nix.settings = lib.mkIf cfg.kernel.binaryCache {
-          substituters = [ "https://cache.lantian.pub/lantian" ];
-          trusted-public-keys = [ "lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ=" ];
+        nix.settings = lib.mkIf binaryCacheSet {
+          substituters = cfg.kernel.binaryCache.substituters;
+          trusted-public-keys = cfg.kernel.binaryCache.trustedPublicKeys;
         };
       })
     ]
