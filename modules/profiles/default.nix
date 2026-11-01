@@ -14,5 +14,6 @@
     ./shell.nix
     ./server.nix
     ./storage.nix
+    ./systemd-tuning.nix
   ];
 }
