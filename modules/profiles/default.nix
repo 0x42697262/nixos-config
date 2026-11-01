@@ -6,6 +6,7 @@
     ./desktop.nix
     ./docker.nix
     ./editors.nix
+    ./firmware.nix
     ./gaming.nix
     ./gitlab.nix
     ./graphics.nix
