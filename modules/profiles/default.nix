@@ -19,5 +19,6 @@
     ./server.nix
     ./storage.nix
     ./systemd-tuning.nix
+    ./timesync.nix
   ];
 }
