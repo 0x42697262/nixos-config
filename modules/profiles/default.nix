@@ -12,6 +12,7 @@
     ./kernel-tuning.nix
     ./memory.nix
     ./nvidia.nix
+    ./sched-ext.nix
     ./security.nix
     ./shell.nix
     ./server.nix
