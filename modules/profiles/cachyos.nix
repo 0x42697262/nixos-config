@@ -11,7 +11,7 @@ let
   opt = options.myProfiles.cachyos;
 
   patchesExample = ''
-    myProfiles.cachyos.nvidia.patches =
+    myProfiles.cachyos.gpu.nvidia.patches =
       let
         base = "https://raw.githubusercontent.com/CachyOS/kernel-patches/f3770b16d069a1bce8dfa63841042137f8b43434/7.3/misc/nvidia";
       in
@@ -38,7 +38,9 @@ let
     };
   '';
 
-  patchesSet = opt.nvidia.patches.isDefined;
+  patchesSet = opt.gpu.nvidia.patches.isDefined;
+
+  gpuVendors = lib.attrNames (lib.filterAttrs (_: v: v.enable) cfg.gpu);
   binaryCacheSet =
     opt.kernel.binaryCache.substituters.isDefined && opt.kernel.binaryCache.trustedPublicKeys.isDefined;
 
@@ -88,15 +90,26 @@ in
       };
     };
 
-    nvidia.patches = lib.mkOption {
-      type = lib.types.listOf (lib.types.either lib.types.path lib.types.package);
-      example = lib.literalExpression patchesExample;
-      description = ''
-        Patches for the NVIDIA open kernel module, as linux-cachyos applies
-        to its prebuilt nvidia-open (CachyOS/kernel-patches
-        <kernel>/misc/nvidia). Pin them to the kernel and driver the host
-        boots. Required; set [ ] to apply none.
-      '';
+    gpu = {
+      nvidia = {
+        enable = lib.mkEnableOption ''
+          the NVIDIA setup chwd applies for nvidia-open: myProfiles.nvidia
+          with the latest branch, early KMS, CachyOS module and CUDA
+          settings, Dynamic Boost on PRIME laptops, and the patches below
+        '';
+
+        patches = lib.mkOption {
+          type = lib.types.listOf (lib.types.either lib.types.path lib.types.package);
+          example = lib.literalExpression patchesExample;
+          description = ''
+            Patches for the NVIDIA open kernel module, as linux-cachyos
+            applies to its prebuilt nvidia-open (CachyOS/kernel-patches
+            <kernel>/misc/nvidia). Pin them to the kernel and driver the
+            host boots. Required when gpu.nvidia.enable is true; set [ ] to
+            apply none.
+          '';
+        };
+      };
     };
 
     ananicyRules = lib.mkOption {
@@ -111,13 +124,11 @@ in
       {
         assertions = [
           {
-            assertion = patchesSet;
+            assertion = gpuVendors != [ ];
             message = ''
-              myProfiles.cachyos.nvidia.patches is not set. Pin the NVIDIA
-              open module patches for this host's kernel and driver, or set
-              it to [ ]. For linux-cachyos 7.3 with nvidia 615:
-
-              ${patchesExample}'';
+              myProfiles.cachyos needs at least one GPU vendor enabled under
+              myProfiles.cachyos.gpu (available: ${lib.concatStringsSep ", " (lib.attrNames cfg.gpu)}).
+            '';
           }
         ];
 
@@ -169,15 +180,31 @@ in
 
         myProfiles.shell.extras.enable = lib.mkDefault config.myProfiles.shell.enable;
 
+      }
+
+      (lib.mkIf cfg.gpu.nvidia.enable {
+        assertions = [
+          {
+            assertion = patchesSet;
+            message = ''
+              myProfiles.cachyos.gpu.nvidia.patches is not set. Pin the NVIDIA
+              open module patches for this host's kernel and driver, or set
+              it to [ ]. For linux-cachyos 7.3 with nvidia 615:
+
+              ${patchesExample}'';
+          }
+        ];
+
         myProfiles.nvidia = {
+          enable = lib.mkDefault true;
           branch = lib.mkDefault "latest";
           earlyKms = lib.mkDefault true;
           moduleParams.NVreg_InitializeSystemMemoryAllocations = lib.mkDefault 0;
           cudaPerfBoost = lib.mkDefault false;
           dynamicBoost.enable = lib.mkDefault nvidiaPrime;
-          patches = lib.mkIf patchesSet cfg.nvidia.patches;
+          patches = lib.mkIf patchesSet cfg.gpu.nvidia.patches;
         };
-      }
+      })
 
       (lib.mkIf cfg.kernel.enable {
         assertions = [
