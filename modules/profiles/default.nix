@@ -5,7 +5,7 @@
     ./boot.nix
     ./browsers.nix
     ./cachyos.nix
-    ./desktop.nix
+    ./desktop
     ./docker.nix
     ./editors.nix
     ./firmware.nix
