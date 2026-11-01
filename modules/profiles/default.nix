@@ -8,6 +8,7 @@
     ./editors.nix
     ./gaming.nix
     ./gitlab.nix
+    ./graphics.nix
     ./interactive.nix
     ./kernel-tuning.nix
     ./memory.nix
