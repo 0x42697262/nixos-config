@@ -109,6 +109,11 @@
           modules = [ ./hosts/owasp ];
         };
 
+        work-ct-laptop = mkHost {
+          system = "x86_64-linux";
+          modules = [ ./hosts/work-ct-laptop ];
+        };
+
         # work-ct = mkHost {
         #   system = "x86_64-linux";
         #   modules = [ ./hosts/work-ct ];
