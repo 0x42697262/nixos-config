@@ -4,6 +4,7 @@
     ./audio.nix
     ./boot.nix
     ./browsers.nix
+    ./cachyos.nix
     ./desktop.nix
     ./docker.nix
     ./editors.nix
