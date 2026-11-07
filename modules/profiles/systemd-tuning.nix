@@ -103,9 +103,9 @@ in
         systemd.settings.Manager = managerSettings cfg.nofile.system;
         systemd.user.settings.Manager = managerSettings cfg.nofile.user;
 
-        services.journald.extraConfig = lib.optionalString (
-          cfg.journalMaxUse != null
-        ) "SystemMaxUse=${cfg.journalMaxUse}";
+        services.journald.settings.Journal = lib.mkIf (cfg.journalMaxUse != null) {
+          SystemMaxUse = cfg.journalMaxUse;
+        };
 
         systemd.tmpfiles.rules = lib.optional (
           cfg.coredumpRetention != null

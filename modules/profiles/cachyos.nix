@@ -199,7 +199,7 @@ in
             dejavu_fonts
             liberation_ttf
             open-sans
-            ttf_bitstream_vera
+            ttf-bitstream-vera
             fira-sans
             nerd-fonts.meslo-lg
             nerd-fonts.fantasque-sans-mono
