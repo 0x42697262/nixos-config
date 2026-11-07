@@ -58,6 +58,22 @@
     };
   };
 
+  fileSystems."/var/lib/incus" = {
+    device = "/home/.incus";
+    fsType = "none";
+    options = [
+      "bind"
+      "nofail"
+    ];
+    depends = [ "/home" ];
+  };
+
+  systemd.tmpfiles.rules = [ "d /home/.incus 0711 root root -" ];
+
+  systemd.services.incus.unitConfig.RequiresMountsFor = [ "/var/lib/incus" ];
+  systemd.sockets.incus.unitConfig.RequiresMountsFor = [ "/var/lib/incus" ];
+  systemd.sockets.incus-user.unitConfig.RequiresMountsFor = [ "/var/lib/incus" ];
+
   networking.nftables.enable = true;
   networking.firewall.trustedInterfaces = [ "incusbr0" ];
 
