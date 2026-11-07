@@ -1,4 +1,13 @@
 { lib, modulesPath, ... }:
+let
+  xfsOptions = [
+    "lazytime"
+    "noatime"
+    "inode64"
+    "logbsize=256k"
+    "noquota"
+  ];
+in
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
@@ -14,18 +23,21 @@
   ];
   boot.kernelModules = [ "kvm-intel" ];
 
-  boot.initrd.luks.devices.cryptroot.device = "/dev/disk/by-partlabel/cryptroot";
+  boot.initrd.luks.devices.cryptroot = {
+    device = "/dev/disk/by-partlabel/cryptroot";
+    allowDiscards = true;
+  };
 
   fileSystems."/" = {
-    device = "/dev/mapper/cryptroot";
+    device = "/dev/vg/root";
     fsType = "xfs";
-    options = [
-      "lazytime"
-      "noatime"
-      "inode64"
-      "logbsize=256k"
-      "noquota"
-    ];
+    options = xfsOptions;
+  };
+
+  fileSystems."/home" = {
+    device = "/dev/vg/home";
+    fsType = "xfs";
+    options = xfsOptions;
   };
 
   fileSystems."/boot" = {
