@@ -9,10 +9,7 @@
       url = "github:0x42697262/tanka-maze/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    boxhead2play = {
-      url = "github:0x42697262/boxhead2play-multiplayer/main";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    boxhead2play.url = "github:0x42697262/boxhead2play-multiplayer/main";
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 
