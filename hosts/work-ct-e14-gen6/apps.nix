@@ -1,6 +1,9 @@
 { pkgs, ... }:
 {
   myProfiles.browsers.enable = true;
+  myProfiles.llmAgents.enable = true;
+
+  environment.systemPackages = [ pkgs.kitty ];
 
   programs._1password.enable = true;
   programs._1password-gui = {
