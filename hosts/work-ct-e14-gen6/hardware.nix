@@ -62,7 +62,7 @@ in
     }
   ];
   boot.resumeDevice = "/dev/vg/root";
-  # TODO: add "resume_offset=<N>" to boot.kernelParams once /swapfile exists.
+  boot.kernelParams = [ "resume_offset=24" ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }
