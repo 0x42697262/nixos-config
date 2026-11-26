@@ -7,9 +7,6 @@
 # /swapfile is created with dd during the install (not fallocate, so it has
 # no unwritten extents). resume_offset is its first physical block from
 # `filefrag -v /swapfile` and must be updated if the file is ever recreated.
-#
-# initrd modules match `nixos-generate-config --show-hardware-config` on the
-# machine (VMD is off; the NVMe is attached directly).
 { lib, modulesPath, ... }:
 let
   xfsOptions = [
@@ -58,7 +55,6 @@ in
     ];
   };
 
-  # 48G swap file for hibernation; zram stays the everyday swap (higher priority).
   swapDevices = [
     {
       device = "/swapfile";

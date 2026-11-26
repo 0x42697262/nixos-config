@@ -19,7 +19,6 @@
     };
   };
 
-  # The launch wrappers only matter for games; this laptop has no dGPU.
   myProfiles.gaming.wrappers.enable = false;
 
   myProfiles.graphics.intel.enable = true;
@@ -27,9 +26,7 @@
   myProfiles.firmware.cpu = "intel";
   myProfiles.networkTuning.regulatoryDomain = "JP";
 
-  # From nixos-hardware lenovo/thinkpad/e14 and lenovo/thinkpad. The rest of
-  # those modules (microcode, iGPU/VA-API, fstrim, TLP vs PPD) is already
-  # covered by the profiles above.
+  # From nixos-hardware lenovo/thinkpad/e14 and lenovo/thinkpad.
   boot.kernelParams = [
     # Backlight via thinkpad_acpi so systemd-backlight can save/restore it.
     "acpi_backlight=native"
@@ -41,7 +38,7 @@
     emulateWheel = true;
   };
 
-  # Power-button fingerprint reader. Enroll with `fprintd-enroll`.
+  # Enroll with `fprintd-enroll`.
   services.fprintd.enable = true;
 
   # No NVRAM boot entries: bootctl installs to the fallback path
