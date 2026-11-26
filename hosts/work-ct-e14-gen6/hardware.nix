@@ -4,8 +4,8 @@
 #        vg/root 256G XFS -> /
 #        vg/home rest XFS -> /home (Incus data lives here too)
 #
-# TODO: initrd modules are a best guess for this machine. Reconcile with
-# `nixos-generate-config --show-hardware-config` during the install.
+# initrd modules match `nixos-generate-config --show-hardware-config` on the
+# machine (VMD is off; the NVMe is attached directly).
 { lib, modulesPath, ... }:
 let
   xfsOptions = [
@@ -20,7 +20,6 @@ in
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
   boot.initrd.availableKernelModules = [
-    "vmd"
     "xhci_pci"
     "thunderbolt"
     "nvme"
