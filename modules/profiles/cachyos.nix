@@ -45,7 +45,6 @@ let
 
   patchesSet = opt.gpu.nvidia.patches.isDefined;
 
-  gpuVendors = lib.attrNames (lib.filterAttrs (_: v: v.enable) cfg.gpu);
   binaryCacheSet =
     opt.kernel.binaryCache.substituters.isDefined && opt.kernel.binaryCache.trustedPublicKeys.isDefined;
 
@@ -95,6 +94,8 @@ in
       };
     };
 
+    # Optional vendor-specific GPU setup. Leave all off on hosts with only
+    # an integrated GPU; Mesa still comes from myProfiles.graphics.
     gpu = {
       nvidia = {
         enable = lib.mkEnableOption ''
@@ -127,16 +128,6 @@ in
   config = lib.mkIf cfg.enable (
     lib.mkMerge [
       {
-        assertions = [
-          {
-            assertion = gpuVendors != [ ];
-            message = ''
-              myProfiles.cachyos needs at least one GPU vendor enabled under
-              myProfiles.cachyos.gpu (available: ${lib.concatStringsSep ", " (lib.attrNames cfg.gpu)}).
-            '';
-          }
-        ];
-
         myProfiles.zram = {
           enable = lib.mkDefault true;
           memoryPercent = lib.mkDefault 100;
