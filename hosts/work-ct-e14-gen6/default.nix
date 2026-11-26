@@ -33,6 +33,8 @@
   boot.kernelParams = [
     # Backlight via thinkpad_acpi so systemd-backlight can save/restore it.
     "acpi_backlight=native"
+    # Keep crash logs out of NVRAM (efi_pstore writes oops dumps there).
+    "efi_pstore.pstore_disable=1"
   ];
   hardware.trackpoint = {
     enable = true;
@@ -42,8 +44,10 @@
   # Power-button fingerprint reader. Enroll with `fprintd-enroll`.
   services.fprintd.enable = true;
 
+  # No NVRAM boot entries: bootctl installs to the fallback path
+  # \EFI\BOOT\BOOTX64.EFI, which the firmware's built-in NVMe0 entry boots.
   boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.canTouchEfiVariables = false;
 
   networking.hostName = "work-ct-e14-gen6";
   networking.networkmanager.enable = true;
