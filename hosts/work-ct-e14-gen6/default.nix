@@ -19,10 +19,7 @@
   myProfiles.cachyos = {
     enable = true;
 
-    kernel.binaryCache = {
-      substituters = [ "https://cache.lantian.pub/lantian" ];
-      trustedPublicKeys = [ "lantian:WVGO7vsRMSEN+h7Lp7kv6SAmrkEXgUGbbXm7jMDjBuQ=" ];
-    };
+    kernel.enable = false;
   };
 
   myProfiles.gaming.wrappers.enable = false;
@@ -32,11 +29,8 @@
   myProfiles.firmware.cpu = "intel";
   myProfiles.networkTuning.regulatoryDomain = "JP";
 
-  # From nixos-hardware lenovo/thinkpad/e14 and lenovo/thinkpad.
   boot.kernelParams = [
-    # Backlight via thinkpad_acpi so systemd-backlight can save/restore it.
     "acpi_backlight=native"
-    # Keep crash logs out of NVRAM (efi_pstore writes oops dumps there).
     "efi_pstore.pstore_disable=1"
   ];
   hardware.trackpoint = {
@@ -44,13 +38,8 @@
     emulateWheel = true;
   };
 
-  # Enroll with `fprintd-enroll`.
   services.fprintd.enable = true;
 
-  # Secure Boot via lanzaboote; keys live in /var/lib/sbctl and are enrolled
-  # with `sbctl enroll-keys --microsoft`. No NVRAM boot entries: the signed
-  # systemd-boot must also be at the fallback path \EFI\BOOT\BOOTX64.EFI,
-  # which the firmware's built-in NVMe0 entry boots.
   boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.loader.efi.canTouchEfiVariables = false;
   boot.lanzaboote = {
