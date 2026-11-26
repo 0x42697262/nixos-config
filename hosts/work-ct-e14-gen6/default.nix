@@ -1,8 +1,14 @@
 # work-ct-e14-gen6 -- Lenovo ThinkPad E14 Gen 6 (Intel, 21M7), Core Ultra
 # (Meteor Lake) with the integrated Arc GPU only.
-{ ... }:
+{
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 {
   imports = [
+    inputs.lanzaboote.nixosModules.lanzaboote
     ./hardware.nix
     ./desktop.nix
     ./apps.nix
@@ -41,10 +47,17 @@
   # Enroll with `fprintd-enroll`.
   services.fprintd.enable = true;
 
-  # No NVRAM boot entries: bootctl installs to the fallback path
-  # \EFI\BOOT\BOOTX64.EFI, which the firmware's built-in NVMe0 entry boots.
-  boot.loader.systemd-boot.enable = true;
+  # Secure Boot via lanzaboote; keys live in /var/lib/sbctl and are enrolled
+  # with `sbctl enroll-keys --microsoft`. No NVRAM boot entries: the signed
+  # systemd-boot must also be at the fallback path \EFI\BOOT\BOOTX64.EFI,
+  # which the firmware's built-in NVMe0 entry boots.
+  boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.loader.efi.canTouchEfiVariables = false;
+  boot.lanzaboote = {
+    enable = true;
+    pkiBundle = "/var/lib/sbctl";
+  };
+  environment.systemPackages = [ pkgs.sbctl ];
 
   networking.hostName = "work-ct-e14-gen6";
   networking.networkmanager.enable = true;
