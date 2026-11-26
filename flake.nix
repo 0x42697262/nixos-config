@@ -114,6 +114,11 @@
           modules = [ ./hosts/work-ct-laptop ];
         };
 
+        work-ct-e14-gen6 = mkHost {
+          system = "x86_64-linux";
+          modules = [ ./hosts/work-ct-e14-gen6 ];
+        };
+
         # work-ct = mkHost {
         #   system = "x86_64-linux";
         #   modules = [ ./hosts/work-ct ];
