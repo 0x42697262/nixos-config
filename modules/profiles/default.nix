@@ -14,6 +14,7 @@
     ./graphics.nix
     ./interactive.nix
     ./kernel-tuning.nix
+    ./llm-agents.nix
     ./memory.nix
     ./network-tuning.nix
     ./nvidia.nix
