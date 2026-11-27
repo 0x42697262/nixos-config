@@ -39,6 +39,14 @@
   };
 
   services.fprintd.enable = true;
+  security.pam.services.login.fprintAuth = false;
+  security.polkit.extraConfig = ''
+    polkit.addRule(function (action, subject) {
+      if (action.id == "net.reactivated.fprint.device.verify" && subject.isInGroup("users")) {
+        return polkit.Result.YES;
+      }
+    });
+  '';
 
   boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.loader.efi.canTouchEfiVariables = false;
