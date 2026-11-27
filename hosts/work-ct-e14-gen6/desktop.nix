@@ -1,36 +1,71 @@
 { pkgs, ... }:
 let
-  emerald = pkgs.callPackage ../../pkgs/cachyos-emerald-kde.nix { };
+  kdeWin11 = pkgs.callPackage ../../pkgs/kde-win11.nix { };
 in
 {
   myProfiles.desktop = {
     enable = true;
+    displayManager = "sddm";
 
-    gtk.settings.gtk-icon-theme-name = "Qogir-Dark";
+    gtk.settings = {
+      gtk-application-prefer-dark-theme = false;
+      gtk-icon-theme-name = "kde-win11";
+      gtk-cursor-theme-name = "kde-win11-cursors";
+    };
 
     plasma = {
       enable = true;
 
       extraPackages = [
         pkgs.kdePackages.plasma-thunderbolt
-        emerald
-        pkgs.qogir-icon-theme
+        pkgs.kdePackages.qtstyleplugin-kvantum
+        kdeWin11
       ];
 
       colorScheme = {
-        name = "EmeraldDark";
-        package = emerald;
+        name = "KdeWin11Light";
+        package = kdeWin11;
       };
 
       config = {
         kdeglobals = {
-          Icons.Theme = "Qogir-Dark";
-          KDE.LookAndFeelPackage = "com.github.rkstrdee.emerald";
+          Icons.Theme = "kde-win11";
+          KDE = {
+            LookAndFeelPackage = "com.github.0x42697262.kdewin11.light";
+            widgetStyle = "kvantum";
+          };
         };
-        plasmarc.Theme.name = "cachyos-emerald-color";
-        ksplashrc.KSplash.Theme = "com.github.rkstrdee.emerald";
-        kwinrc.WindowSwitcher.LayoutName = "big_icons";
+        plasmarc.Theme.name = "kde-win11-light";
+        ksplashrc.KSplash = {
+          Engine = "KSplashQML";
+          Theme = "com.github.0x42697262.kdewin11.light";
+        };
+        kcminputrc.Mouse = {
+          cursorTheme = "kde-win11-cursors";
+          cursorSize = 24;
+        };
+        kwinrc = {
+          "org.kde.kdecoration2" = {
+            library = "org.kde.kwin.aurorae";
+            theme = "__aurorae__svg__kde-win11-light";
+            ButtonsOnLeft = "M";
+            ButtonsOnRight = "IAX";
+          };
+          WindowSwitcher.LayoutName = "thumbnail_grid";
+          DesktopSwitcher.LayoutName = "org.kde.breeze.desktop";
+        };
+        "Kvantum/kvantum.kvconfig".General.theme = "KdeWin11Light";
       };
+    };
+  };
+
+  fonts.packages = [ pkgs.inter ];
+
+  services.displayManager.sddm = {
+    theme = "kde-win11";
+    settings.Theme = {
+      CursorTheme = "kde-win11-cursors";
+      CursorSize = 24;
     };
   };
 
