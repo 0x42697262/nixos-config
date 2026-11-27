@@ -1,7 +1,3 @@
-# Profile: llmAgents
-# LLM coding agents for the terminal. Each agent has its own toggle under
-# the profile; claude-code and agy are unfree (allowUnfree is set in
-# modules/common/nix.nix).
 {
   config,
   lib,
@@ -30,10 +26,7 @@ in
     piBolt.enable = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = ''
-        Pi-Bolt (`pi-bolt`), the Pi coding agent compiled ahead of time
-        (pkgs/pi-bolt.nix). Install telemetry is off unless PI_TELEMETRY is set.
-      '';
+      description = "Pi-Bolt (`pi-bolt`).";
     };
   };
 

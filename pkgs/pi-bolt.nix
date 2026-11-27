@@ -1,7 +1,3 @@
-# Pi-Bolt: the Pi coding agent compiled ahead of time to one executable.
-# Repackages the signed upstream release; the hash is that of
-# pi-bolt-linux-x64.tar.gz in the release's SHA256SUMS, whose signature
-# verifies against keys/release.pub.
 {
   lib,
   stdenv,
@@ -24,11 +20,8 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper
   ];
 
-  # native/linux/prebuilds/linux-x64/linux-platform-x11.node (clipboard).
   buildInputs = [ libxcb ];
 
-  # pi is a Bun executable whose program lives in the .bun ELF section;
-  # stripping would drop it. Setting the interpreter (autoPatchelf) is fine.
   dontStrip = true;
   dontConfigure = true;
   dontBuild = true;
@@ -39,9 +32,6 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p $out/lib/pi-bolt $out/bin
     cp -r . $out/lib/pi-bolt
 
-    # pi-start (static) preloads pi and execs the sibling pi binary, which
-    # finds its themes and assets next to itself. Install ping off unless
-    # the user sets PI_TELEMETRY.
     makeWrapper $out/lib/pi-bolt/pi-start $out/bin/pi-bolt \
       --set-default PI_TELEMETRY 0
 
